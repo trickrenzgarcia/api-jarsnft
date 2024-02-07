@@ -1,11 +1,10 @@
-import express, { Express, Response, Request } from "express";
+import express, { type Express, type Response, type Request } from "express";
 import cors from "cors";
-import sdk from "./thirdweb";
-import { collection, collections } from "./api/routes";
+import { address, collection, collections, login, nonce, test } from "@/api/routes";
 import * as middleware from "@/middlewares";
-import { z } from "zod";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config();
 
 const app: Express = express();
 const port = process.env.APP_PORT || 5000;
@@ -16,21 +15,20 @@ app.use(cors());
 app.use(express.json());
 
 // API Endpoints
+app.use("/auth", login);
 app.use("/collection", collection);
 app.use("/collections", collections);
+app.use("/address", address);
+app.use("/test", test);
+app.use("/nonce", nonce);
 
-app.get("/", (req: Request, res: Response) => {
-  const bodySchema = z.object({
-    name: z.string().trim().min(1),
-  });
-
-  const result = bodySchema.parse(req.body);
-  res.status(200).json(result);
+app.get("/", middleware.authorization, (req: Request, res: Response) => {
+  res.json(process.env.THIRDWEB_CLIENT_ID);
 });
 
 // Middlewares
 //app.use(middleware.notFound);
-//app.use(middleware.errorHandler);
+// app.use(middleware.errorHandler);
 app.use(middleware.zodMiddleware);
 
 app.listen(port, () => {

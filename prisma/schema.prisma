@@ -9,7 +9,7 @@ datasource db {
 
 model collections {
   id                        Int      @id @default(autoincrement())
-  cid                       String   @db.Text
+  cid                       String   @default(uuid()) @db.Text
   collection                String   @db.Text
   name                      String   @db.Text
   description               String   @db.Text
@@ -30,4 +30,17 @@ model collections {
   twitter_username          String   @db.Text
   instagram_username        String   @db.Text
   created_at                DateTime @default(now()) @db.Timestamp(0)
+}
+
+model Users {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String   @db.Text
+  address   String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Nonce {
+  id    Int    @id @default(autoincrement())
+  nonce String
 }

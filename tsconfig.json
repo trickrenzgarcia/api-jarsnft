@@ -10,7 +10,10 @@
     "skipLibCheck": true,
     "strict": true,
     "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "noEmit": true,
+    "incremental": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "paths": {
@@ -18,6 +21,6 @@
     }
   },
   "include": [
-    "./src/**/*.ts", ".eslintrc.cjs"
+    "**/*.ts", ".eslintrc.cjs"
   ]
 }

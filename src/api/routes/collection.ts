@@ -1,24 +1,44 @@
-import sdk from "../../thirdweb";
-import { RequestHandler, Router } from "express";
+import sdk from "@/thirdweb";
+import { type RequestHandler, Router, Request, Response } from "express";
+import { z } from "zod";
 
-interface Contract {
-  contract: string;
-}
+export const collection = Router();
 
-const collection = Router();
+const makeGetEndpoint =
+  <TQuery>(
+    schema: z.Schema<TQuery>,
+    callback: (req: Request<TQuery, any, any, any>, res: Response) => void
+  ) =>
+  (req: Request<TQuery, any, any, any>, res: Response) => {
+    const params = schema.safeParse(req.params);
 
-const getCollection: RequestHandler<Contract, unknown> = async (
-  req,
-  res,
-  next
-) => {
-  const { contract } = req.params;
-  const sdkContract = await sdk.getContract(contract);
-  const nfts = await sdkContract.erc721.getAll();
-  console.log(nfts);
-  res.json(nfts);
-};
+    if (!params.success) {
+      res.status(400).send(params.error.message);
+    }
 
-collection.get("/:contract", getCollection);
+    return callback(req, res);
+  };
 
-export { collection };
+const schema = z.object({
+  contract: z.string().refine((value) => value.startsWith("0x")),
+});
+
+collection.get("/", (req: Request, res: Response) => {
+  // http method not allowed 405
+  res.status(405).json({
+    statusCode: res.statusCode,
+    success: true,
+    message: `${req.method} is not allowed.`,
+  });
+});
+
+collection.get(
+  "/:contract",
+  makeGetEndpoint(schema, async (req, res) => {
+    const contract = await sdk.getContract(req.params.contract);
+    const metadata = await contract.metadata.get();
+    const nfts = await contract.erc721.getAll();
+
+    res.status(200).json({ metadata, nfts });
+  })
+);
