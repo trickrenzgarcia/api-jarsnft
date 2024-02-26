@@ -4,3 +4,4 @@ export * from "./login";
 export * from "./test";
 export * from "./address";
 export * from "./nonce";
+export * from "./metadata";

@@ -1,6 +1,6 @@
 import express, { type Express, type Response, type Request } from "express";
 import cors from "cors";
-import { address, collection, collections, login, nonce, test } from "@/api/routes";
+import { address, collection, collections, login, metadata, nonce, test } from "@/api/routes";
 import * as middleware from "@/middlewares";
 import dotenv from "dotenv";
 
@@ -21,6 +21,7 @@ app.use("/collections", collections);
 app.use("/address", address);
 app.use("/test", test);
 app.use("/nonce", nonce);
+app.use("/metadata", metadata);
 
 app.get("/", middleware.authorization, (req: Request, res: Response) => {
   res.json(process.env.THIRDWEB_CLIENT_ID);

@@ -1,3 +1,4 @@
+import { getCollectionMetadata } from "@/prisma";
 import sdk from "@/thirdweb";
 import { type RequestHandler, Router, Request, Response } from "express";
 import { z } from "zod";
@@ -13,7 +14,7 @@ const makeGetEndpoint =
     const params = schema.safeParse(req.params);
 
     if (!params.success) {
-      res.status(400).send(params.error.message);
+      return res.status(400).send(params.error.message);
     }
 
     return callback(req, res);
@@ -35,8 +36,13 @@ collection.get("/", (req: Request, res: Response) => {
 collection.get(
   "/:contract",
   makeGetEndpoint(schema, async (req, res) => {
+    const metadata = await getCollectionMetadata(req.params.contract);
+
+    if (!metadata) {
+      return res.status(404).json("Not found");
+    }
+
     const contract = await sdk.getContract(req.params.contract);
-    const metadata = await contract.metadata.get();
     const nfts = await contract.erc721.getAll();
 
     res.status(200).json({ metadata, nfts });
