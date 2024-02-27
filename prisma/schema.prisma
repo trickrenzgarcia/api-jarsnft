@@ -32,15 +32,17 @@ model collections {
   created_at                DateTime @default(now()) @db.Timestamp(0)
 }
 
-model Users {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String   @db.Text
-  address   String   @unique
-  createdAt DateTime @default(now())
-}
-
-model Nonce {
+model nonce {
   id    Int    @id @default(autoincrement())
   nonce String
+}
+
+model users {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique(map: "uid", length: 255) @db.Text
+  email     String?  @unique(map: "Users_email_key")
+  name      String?  @db.Text
+  address   String   @unique(map: "Users_address_key")
+  is_listed Boolean
+  createdAt DateTime @default(now())
 }

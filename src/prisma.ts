@@ -1,4 +1,4 @@
-import { PrismaClient, Users, collections } from "@prisma/client";
+import { PrismaClient, collections } from "@prisma/client";
 import { ZodError, z } from "zod";
 
 export const prisma = new PrismaClient();

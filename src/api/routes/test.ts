@@ -1,5 +1,4 @@
 import { getUserAddress } from "@/prisma";
-import { Users } from "@prisma/client";
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 

@@ -1,6 +1,6 @@
 import express, { type Express, type Response, type Request } from "express";
 import cors from "cors";
-import { address, collection, collections, login, metadata, nonce, test } from "@/api/routes";
+import { address, collection, collections, login, metadata, nonce, test, userRouter } from "@/api/routes";
 import * as middleware from "@/middlewares";
 import dotenv from "dotenv";
 
@@ -15,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // API Endpoints
+app.use("/user", userRouter)
 app.use("/auth", login);
 app.use("/collection", collection);
 app.use("/collections", collections);
