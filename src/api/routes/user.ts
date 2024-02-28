@@ -84,6 +84,35 @@ const userParamsSchema = z.object({
   address: walletAddressSchema
 })
 
+userRouter.get("/:address", verifyEndPoint, async (req: Request<z.infer<typeof userParamsSchema>, any, any, any>, res: Response) => {
+  const params = userParamsSchema.safeParse(req.params);
+  if(!params.success) {
+    const error = JSON.parse(params.error.message);
+    return res.status(400).json(error);
+  }
+  
+  const user = await prisma.users.findUnique({
+    where: {
+      address: req.params.address
+    }
+  })
+
+  if(!user) {
+    return res.status(404).json({
+      success: true,
+      message: "User not found",
+      data: user
+    })
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "User found",
+    data: user
+  })
+
+})
+
 userRouter.post("/:address", verifyEndPoint, async (req: Request<z.infer<typeof userParamsSchema>, any, any, any>, res: Response) => {
   const params = userParamsSchema.safeParse(req.params);
   if(!params.success) {
