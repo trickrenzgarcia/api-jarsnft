@@ -46,3 +46,12 @@ model users {
   is_listed Boolean
   createdAt DateTime @default(now())
 }
+
+model api_keys {
+  id         Int      @id @default(autoincrement())
+  address    String   @db.VarChar(255)
+  name       String   @db.VarChar(255)
+  apiKey     String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Date
+  expired_at DateTime @db.Date
+}

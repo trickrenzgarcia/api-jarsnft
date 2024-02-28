@@ -1,7 +1,7 @@
 import express, { type Express, type Response, type Request } from "express";
 import cors from "cors";
-import { address, collection, collections, login, metadata, nonce, test, userRouter } from "@/api/routes";
 import * as middleware from "@/middlewares";
+import * as router from "@/api/routes";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -15,14 +15,15 @@ app.use(cors());
 app.use(express.json());
 
 // API Endpoints
-app.use("/user", userRouter)
-app.use("/auth", login);
-app.use("/collection", collection);
-app.use("/collections", collections);
-app.use("/address", address);
-app.use("/test", test);
-app.use("/nonce", nonce);
-app.use("/metadata", metadata);
+app.use("/user", router.userRouter)
+app.use("/auth", router.login);
+app.use("/collection", router.collection);
+app.use("/collections", router.collections);
+app.use("/address", router.address);
+app.use("/test", router.test);
+app.use("/nonce", router.nonce);
+app.use("/metadata", router.metadata);
+app.use("/secret", router.secretRouter)
 
 app.get("/", middleware.authorization, (req: Request, res: Response) => {
   res.json(process.env.THIRDWEB_CLIENT_ID);

@@ -7,6 +7,7 @@ declare global {
       THIRDWEB_API_KEY: string;
       PORT: number;
       JWT_SECRET_KEY: Secret;
+      JWT_TOKEN: string;
       LOCAL_DATABASE_URL: string;
       DATABASE_URL: string;
     }
