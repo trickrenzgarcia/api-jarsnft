@@ -7,6 +7,7 @@
     "postinstall": "prisma generate",
     "build": "npx tsc",
     "dev": "nodemon src/app.ts --ext ts",
+    "devbun": "bun run --watch src/app.ts",
     "devts": "ts-node-dev --respawn --transpile-only ./src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vercel-build": "echo Building your express app.",
@@ -16,8 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.10.2",
-    "@thirdweb-dev/sdk": "^4.0.27",
-    "alchemy-sdk": "^3.1.2",
+    "@thirdweb-dev/sdk": "^4.0.38",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
