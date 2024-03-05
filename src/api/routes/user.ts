@@ -43,6 +43,7 @@ const updateUserSchema = z.object({
   address: walletAddressSchema,
   name: z.string(),
   email: z.string().email(),
+  is_listed: z.boolean()
 }) 
 
 userRouter.put("/update", verifyEndPoint, makeEndPoint(updateUserSchema, async (req, res) => {
@@ -50,7 +51,8 @@ userRouter.put("/update", verifyEndPoint, makeEndPoint(updateUserSchema, async (
   const user = await prisma.users.findUnique({
     where: {
       address: req.body.address
-    }
+    },
+    select: { address: true }
   })
 
   if(!user) {
@@ -60,7 +62,6 @@ userRouter.put("/update", verifyEndPoint, makeEndPoint(updateUserSchema, async (
     })
   }
   
-
   // Update the user if address exists in the database
   const updatedUser = await prisma.users.update({
     where: {
@@ -69,7 +70,7 @@ userRouter.put("/update", verifyEndPoint, makeEndPoint(updateUserSchema, async (
     data: {
       name: req.body.name,
       email: req.body.email,
-      is_listed: true
+      is_listed: req.body.is_listed
     }
   })
 
