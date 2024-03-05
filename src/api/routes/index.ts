@@ -9,5 +9,3 @@ export * from "./user"
 export * from "./secret"
 export * from "./mint"
 
-// Alchemy Routers
-export * from "./alchemy";

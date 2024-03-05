@@ -26,13 +26,6 @@ app.use("/metadata", router.metadata);
 app.use("/secret", router.secretRouter)
 app.use("/mint", router.mintRouter);
 
-// Alchemy Endpoints
-app.use("/alchemy", router.alchemyRouter);
-
-app.get("/", middleware.authorization, (req: Request, res: Response) => {
-  res.json(process.env.THIRDWEB_CLIENT_ID);
-});
-
 // Middlewares
 //app.use(middleware.notFound);
 // app.use(middleware.errorHandler);
