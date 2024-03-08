@@ -1,12 +1,9 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Router } from 'express';
 import crypto from 'crypto';
 import { prisma } from '@/prisma';
 import { verifyEndPoint } from '@/middlewares/verifyEndPoint';
 import { z } from 'zod';
 import { makeEndPoint } from '@/middlewares/makeEndPoint';
-
-const secretKey = process.env.JWT_SECRET_KEY as string;
 
 export const secretRouter = Router();
 
@@ -31,9 +28,5 @@ secretRouter.post('/create', verifyEndPoint, makeEndPoint(schema, async (req, re
         }
     })
 
-    res.status(201).json({
-        success: true,
-        message: 'API Key created successfully',
-        data: createSecret
-    })
+    res.status(201).json({ createSecret })
 }))

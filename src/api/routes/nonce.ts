@@ -1,30 +1,40 @@
-import { nonceExists, saveNonce } from "@/prisma";
-import { Router, Request, Response } from "express";
+import { makeEndPoint } from "@/middlewares/makeEndPoint";
+import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
+import { prisma } from "@/prisma";
+import { Router } from "express";
+import { z } from "zod";
 
 export const nonce = Router();
 
-type ReqBody = {
-  nonce: string;
-};
+const nonceSchema = z.object({
+  nonce: z.string().min(1),
+})
 
-nonce.post("/validate", async (req: Request<any, any, ReqBody, any>, res: Response) => {
-  const nonce = await nonceExists(req.body.nonce);
-  if (nonce) {
-    res.status(409).json({ isExists: nonce });
+nonce.post("/validate", verifyEndPoint, makeEndPoint(nonceSchema, async (req, res) => {
+  const nonce = await prisma.nonce.findFirst({
+    where: {
+      nonce: req.body.nonce
+    }
+  })
+
+  if(nonce) {
+    return res.status(409).json({ isExists: nonce })
   }
 
-  res.status(200).json({ isExists: nonce });
-});
+  return res.status(200).json({ isExists: nonce })
+}));
 
-nonce.post("/create", async (req: Request<any, any, ReqBody, any>, res: Response) => {
-  const newNonce = await saveNonce(req.body.nonce);
+nonce.post("/create", verifyEndPoint, makeEndPoint(nonceSchema, async (req, res) => {
+  const createNonce = await prisma.nonce.create({
+    data: {
+      nonce: req.body.nonce
+    }
+  })
 
-  if (!newNonce) {
-    res.status(500).json({ success: false, message: "Internal Server Error." });
+  if(!createNonce) {
+    return res.status(500).json({ message: "Internal Server Error." })
   }
 
-  res.status(200).json({
-    success: true,
-    nonce: newNonce,
-  });
-});
+  return res.status(200).json({ createNonce })
+}));
+
