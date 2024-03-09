@@ -21,7 +21,7 @@ const userParamsSchema = z.object({
 
 const updateUserSchema = z.object({
   address: walletAddressSchema,
-  name: z.string(),
+  name: z.string().min(3, { message: "Name must be at least 3 character long" }),
   email: z.string().email(),
   is_listed: z.boolean()
 })
@@ -55,7 +55,7 @@ userRouter.get("/:address", verifyEndPoint, async (req: Request<z.infer<typeof u
     return res.status(404).json({ message: "User not found" })
   }
 
-  return res.status(200).json({ user })
+  return res.status(200).json(user)
 
 })
 
@@ -63,17 +63,22 @@ userRouter.post("/create", verifyEndPoint, makeEndPoint(createUserSchema,
   async (req: Request<any, any, z.infer<typeof createUserSchema>, any>, res: Response) => {
     const createUser = await prisma.users.create({
         data: {
-            uid: randomUUID(),
-            address: req.body.address,
-            is_listed: false
+          uid: randomUUID(),
+          address: req.body.address,
+          is_listed: false
         }
     })
 
-    res.status(201).json({ createUser })
+    if(!createUser) {
+      return res.status(500).json({ message: "Failed to create user" })
+    }
+
+    return res.status(201).json(createUser)
   }
 ))
 
-userRouter.put("/update", verifyEndPoint, makeEndPoint(updateUserSchema, async (req, res) => {
+userRouter.put("/update", verifyEndPoint, makeEndPoint(updateUserSchema, 
+  async (req: Request<any, any, z.infer<typeof updateUserSchema>, any>, res: Response) => {
   // Check if the address exists in the database
   const user = await prisma.users.findUnique({
     where: {
@@ -98,5 +103,5 @@ userRouter.put("/update", verifyEndPoint, makeEndPoint(updateUserSchema, async (
     }
   })
 
-  res.status(200).json({ updatedUser })
+  res.status(200).json(updatedUser)
 }))

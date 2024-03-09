@@ -10,7 +10,7 @@ export const makeEndPoint =
     const body = schema.safeParse(req.body);
 
     if (!body.success) {
-      return res.status(400).send(body.error.message);
+      return res.status(400).json(JSON.parse(body.error.message));
     }
 
     return callback(req, res, next)
