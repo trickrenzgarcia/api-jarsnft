@@ -8,6 +8,7 @@
     "build": "npx tsc",
     "dev": "nodemon src/app.ts --ext ts",
     "devbun": "bun run --watch src/app.ts",
+    "dev:bun": "bun run --watch src/app.ts",
     "devts": "ts-node-dev --respawn --transpile-only ./src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vercel-build": "echo Building your express app.",
