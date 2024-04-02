@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // API Endpoints
-app.use("/user", router.userRouter)
+app.use("/user", router.userRouter);
 app.use("/auth", router.login);
 app.use("/collection", router.collection);
 app.use("/collections", router.collections);
@@ -23,8 +23,9 @@ app.use("/address", router.address);
 app.use("/test", router.test);
 app.use("/nonce", router.nonce);
 app.use("/metadata", router.metadata);
-app.use("/secret", router.secretRouter)
+app.use("/secret", router.secretRouter);
 app.use("/mint", router.mintRouter);
+app.use("/deploy", router.deploy);
 
 // Middlewares
 //app.use(middleware.notFound);

@@ -1,11 +1,17 @@
-import { makeEndPoint } from "@/middlewares/makeEndPoint";
 import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { getAllMetadata, prisma } from "@/prisma";
 import sdk from "@/thirdweb";
-import { type RequestHandler, Router, Request, Response } from "express";
+import { ethers } from "ethers";
+import { Router } from "express";
 import { z } from "zod";
 
 export const metadata = Router();
+
+const schema = z.object({
+  contract: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Input is not a valid address or ENS name.",
+  }),
+});
 
 metadata.get("/all", async (req, res) => {
   const allMetadata = await getAllMetadata();
@@ -14,16 +20,14 @@ metadata.get("/all", async (req, res) => {
 });
 
 metadata.get("/:contract", verifyEndPoint, async (req, res) => {
-  const metadata = await prisma.collections.findFirst({
-    where: {
-      cid: req.params.contract,
-    },
-  });
+  const contractAddress = schema.safeParse(req.params);
 
-  if(!metadata) {
-    return res.status(404).json({ message: "Contract Metadata Not found" });
+  if (!contractAddress.success) {
+    return res.status(400).json(JSON.parse(contractAddress.error.message));
   }
+
+  const contract = await sdk.getContract(contractAddress.data.contract);
+  const metadata = await contract.metadata.get();
 
   return res.status(200).json(metadata);
 });
-

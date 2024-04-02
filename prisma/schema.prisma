@@ -70,3 +70,18 @@ model contracts {
   createdAt              DateTime @default(now()) @db.DateTime(0)
   updatedAt              DateTime @default(now()) @db.DateTime(0)
 }
+
+model nft_collections {
+  contract                String   @id @db.VarChar(255)
+  image                   String   @db.Text
+  name                    String   @db.Text
+  symbol                  String   @db.Text
+  description             String   @db.Text
+  app_uri                 String   @db.Text
+  external_link           String   @db.Text
+  fee_recipient           String   @db.Text
+  seller_fee_basis_points Int
+  primary_sale_recipient  String   @db.Text
+  trusted_forwarders      Json
+  created_at              DateTime @default(now()) @db.DateTime(0)
+}
