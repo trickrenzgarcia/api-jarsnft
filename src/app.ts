@@ -26,6 +26,7 @@ app.use("/metadata", router.metadata);
 app.use("/secret", router.secretRouter);
 app.use("/mint", router.mintRouter);
 app.use("/deploy", router.deploy);
+app.use("/nfts", router.nftsRouter);
 
 // Middlewares
 //app.use(middleware.notFound);

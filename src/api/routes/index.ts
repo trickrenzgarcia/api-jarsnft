@@ -9,3 +9,4 @@ export * from "./user";
 export * from "./secret";
 export * from "./mint";
 export * from "./deploy";
+export * from "./nfts";
