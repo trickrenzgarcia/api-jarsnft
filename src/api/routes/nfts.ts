@@ -7,7 +7,7 @@ nftsRouter.get("/:address", verifyEndPoint, async (req, res) => {
   const address = req.params.address;
   try {
     const nfts = await fetch(
-      `https://eth-sepolia.g.alchemy.com/nft/v3/8NdhArhTjfpQ6owO-4b3YLWjqw9oTI2Z/getNFTsForOwner?owner=${address}`
+      `${process.env.SEPOLIA_ALCHEMY_BASE_URL}${process.env.SEPOLIA_ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}`
     );
     const data = await nfts.json();
 

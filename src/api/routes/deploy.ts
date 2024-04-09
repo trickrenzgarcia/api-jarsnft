@@ -8,9 +8,12 @@ import { z } from "zod";
 
 export const deploy = Router();
 
-const contractAddressSchema = z.object({
+const deployContractSchema = z.object({
   contractAddress: z.string().refine((value) => ethers.utils.isAddress(value), {
-    message: "Input is not a valid address or ENS name.",
+    message: "Contract Address Input is not a valid address or ENS name.",
+  }),
+  owner: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Owner Address Input is not a valid address or ENS name.",
   }),
 });
 
@@ -24,34 +27,39 @@ deploy.post(
   "/nft-collection",
   verifyEndPoint,
   makeEndPoint(
-    contractAddressSchema,
-    async (req: Request<any, any, z.infer<typeof contractAddressSchema>, any>, res: Response) => {
-      const contractAddress = contractAddressSchema.safeParse(req.body);
+    deployContractSchema,
+    async (req: Request<any, any, z.infer<typeof deployContractSchema>, any>, res: Response) => {
+      const contractSchema = deployContractSchema.safeParse(req.body);
 
-      if (!contractAddress.success) {
-        const error = JSON.parse(contractAddress.error.message);
+      if (!contractSchema.success) {
+        const error = JSON.parse(contractSchema.error.message);
         return res.status(400).json(error);
       }
 
-      const contract = await sdk.getContract(contractAddress.data.contractAddress);
+      const contract = await sdk.getContract(contractSchema.data.contractAddress);
       const metadata = await contract.metadata.get();
 
-      const collection = await prisma.nft_collections.create({
-        data: {
-          contract: contractAddress.data.contractAddress,
-          name: metadata.name,
-          symbol: metadata.symbol || "",
-          app_uri: metadata.app_uri || "",
-          description: metadata.description || "",
-          image: metadata.image || "",
-          external_link: metadata.external_link || "",
-          fee_recipient: metadata.fee_recipient || "",
-          seller_fee_basis_points: metadata.seller_fee_basis_points || 0,
-          primary_sale_recipient: metadata.primary_sale_recipient || "",
-          trusted_forwarders: metadata.trusted_forwarders || [],
-        },
-      });
-      return res.status(200).json(collection);
+      try {
+        const collection = await prisma.nft_collections.create({
+          data: {
+            contract: contractSchema.data.contractAddress,
+            name: metadata.name,
+            symbol: metadata.symbol || "",
+            app_uri: metadata.app_uri || "",
+            description: metadata.description || "",
+            image: metadata.image || "",
+            external_link: metadata.external_link || "",
+            fee_recipient: metadata.fee_recipient || "",
+            seller_fee_basis_points: metadata.seller_fee_basis_points || 0,
+            primary_sale_recipient: metadata.primary_sale_recipient || "",
+            owner: contractSchema.data.owner,
+            trusted_forwarders: metadata.trusted_forwarders || [],
+          },
+        });
+        return res.status(200).json(collection);
+      } catch (error) {
+        return res.status(400).json({ message: "Error creating Collection" });
+      }
     }
   )
 );
