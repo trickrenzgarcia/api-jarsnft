@@ -45,7 +45,7 @@ model users {
   name      String?  @db.Text
   address   String   @unique(map: "Users_address_key")
   is_listed Boolean
-  createdAt DateTime @default(now())
+  created_at DateTime @default(now())
 }
 
 model api_keys {
