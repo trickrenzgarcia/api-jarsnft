@@ -1,18 +1,30 @@
+import alchemy from "@/alchemy";
 import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
+import { ethers } from "ethers";
 import { Router, Response, Request } from "express";
+import { z } from "zod";
 
 export const nftsRouter = Router();
 
-nftsRouter.get("/:address", verifyEndPoint, async (req, res) => {
-  const address = req.params.address;
-  try {
-    const nfts = await fetch(
-      `${process.env.SEPOLIA_ALCHEMY_BASE_URL}${process.env.SEPOLIA_ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}`
-    );
-    const data = await nfts.json();
+const ownerSchema = z.object({
+  owner: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Input is not a valid address or ENS name.",
+  }),
+});
 
-    return res.status(200).json(data);
-  } catch (error) {
-    return res.status(400).json({ message: "Error fetching NFTs" });
+const contractSchema = z.object({
+  contractAddress: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Input is not a valid address or ENS name.",
+  }),
+});
+
+nftsRouter.get("/getNFTsForOwner", verifyEndPoint, async (req, res) => {
+  const owner = ownerSchema.safeParse(req.query);
+
+  if (!owner.success) {
+    return res.status(400).json(JSON.parse(owner.error.message));
   }
+
+  const nfts = await alchemy.nft.getNftsForOwner(owner.data.owner);
+  res.status(200).json(nfts);
 });
