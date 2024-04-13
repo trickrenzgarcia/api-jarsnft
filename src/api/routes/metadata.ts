@@ -4,7 +4,6 @@ import sdk from "@/thirdweb";
 import { ethers } from "ethers";
 import { Router } from "express";
 import { z } from "zod";
-import ContractAbi from "@thirdweb-dev/contracts/abi/TokenERC721.json";
 import alchemy from "@/alchemy";
 
 export const metadata = Router();
