@@ -10,3 +10,4 @@ export * from "./secret";
 export * from "./mint";
 export * from "./deploy";
 export * from "./nfts";
+export * from "./storage";

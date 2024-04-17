@@ -88,3 +88,12 @@ model nft_collections {
   owner                   String   @db.Text
   created_at              DateTime @default(now()) @db.DateTime(0)
 }
+
+model user_profile {
+  address     String   @unique
+  image_url   String?   @db.Text
+  banner_url  String?   @db.Text
+  is_verified Boolean  @default(false)
+  socials     String?  @db.LongText
+  updated_at  DateTime @default(now()) @db.DateTime(0)
+}
