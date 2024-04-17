@@ -62,6 +62,23 @@ userRouter.get(
   }
 );
 
+userRouter.get("/profile/:address", verifyEndPoint, async (req, res) => {
+  const userWithProfile = await prisma.users.findUnique({
+    where: {
+      address: req.params.address,
+    },
+    include: {
+      profile: true,
+    }
+  });
+
+  if (!userWithProfile) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json(userWithProfile);
+});
+
 userRouter.post(
   "/create",
   verifyEndPoint,
