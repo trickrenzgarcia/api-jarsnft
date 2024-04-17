@@ -18,7 +18,7 @@ const deployContractSchema = z.object({
 });
 
 deploy.get("/nft-collection", verifyEndPoint, async (req, res) => {
-  const allCollections = await prisma.nft_collections.findMany({ take: 10 });
+  const allCollections = await prisma.nftCollections.findMany({ take: 10 });
 
   return res.status(200).json(allCollections);
 });
@@ -40,7 +40,7 @@ deploy.post(
       const metadata = await contract.metadata.get();
 
       try {
-        const collection = await prisma.nft_collections.create({
+        const collection = await prisma.nftCollections.create({
           data: {
             contract: contractSchema.data.contractAddress,
             name: metadata.name,

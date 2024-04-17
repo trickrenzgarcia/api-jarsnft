@@ -1,6 +1,5 @@
 import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { getAllMetadata, prisma } from "@/prisma";
-import sdk from "@/thirdweb";
 import { ethers } from "ethers";
 import { Router } from "express";
 import { z } from "zod";

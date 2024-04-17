@@ -18,7 +18,7 @@ secretRouter.post('/create', verifyEndPoint, makeEndPoint(schema, async (req, re
     
     const { address, name } = req.body
 
-    const createSecret = await prisma.api_keys.create({
+    const createSecret = await prisma.apiKeys.create({
         // expires a year from now
         data: {
             address: address,

@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model collections {
+model Collections {
   id                        Int      @id @default(autoincrement())
   cid                       String   @default(uuid()) @db.Text
   collection                String   @db.Text
@@ -31,14 +31,16 @@ model collections {
   twitter_username          String   @db.Text
   instagram_username        String   @db.Text
   created_at                DateTime @default(now()) @db.Timestamp(0)
+  @@map("collections")
 }
 
-model nonce {
+model Nonce {
   id    Int    @id @default(autoincrement())
   nonce String
+  @@map("nonce")
 }
 
-model users {
+model Users {
   id         Int      @id @default(autoincrement())
   uid        String   @unique(map: "uid", length: 255) @db.Text
   email      String?  @unique(map: "Users_email_key")
@@ -47,18 +49,21 @@ model users {
   is_listed  Boolean
   created_at DateTime @default(now())
   role       String   @default("user")
+  profile   UserProfile?
+  @@map("users")
 }
 
-model api_keys {
+model ApiKeys {
   id         Int      @id @default(autoincrement())
   address    String   @db.VarChar(255)
   name       String   @db.VarChar(255)
   apiKey     String   @db.VarChar(255)
   created_at DateTime @default(now()) @db.Date
   expired_at DateTime @db.Date
+  @@map("api_keys")
 }
 
-model contracts {
+model Contracts {
   contract_id            String   @id(length: 255) @db.Text
   name                   String   @db.Text
   description            String   @db.Text
@@ -71,9 +76,10 @@ model contracts {
   app_uri                String   @db.Text
   createdAt              DateTime @default(now()) @db.DateTime(0)
   updatedAt              DateTime @default(now()) @db.DateTime(0)
+  @@map("contracts")
 }
 
-model nft_collections {
+model NftCollections {
   contract                String   @id @db.VarChar(255)
   image                   String   @db.Text
   name                    String   @db.Text
@@ -87,13 +93,17 @@ model nft_collections {
   trusted_forwarders      String   @db.LongText
   owner                   String   @db.Text
   created_at              DateTime @default(now()) @db.DateTime(0)
+  @@map("nft_collections")
 }
 
-model user_profile {
+model UserProfile {
   address     String   @unique
-  image_url   String?   @db.Text
-  banner_url  String?   @db.Text
+  image_url   String?  @db.Text
+  banner_url  String?  @db.Text
   is_verified Boolean  @default(false)
   socials     String?  @db.LongText
   updated_at  DateTime @default(now()) @db.DateTime(0)
+  user        Users?    @relation(fields: [address], references: [address])
+  @@map("user_profile")
 }
+

@@ -24,7 +24,7 @@ storage.post("/profile", verifyEndPoint, async (req, res) => {
     if (!addressSchema.success) return res.status(400).json(addressSchema.error.errors);
 
     try {
-        const user_profile = await prisma.user_profile.create({
+        const user_profile = await prisma.userProfile.create({
             data: {
                 address: addressSchema.data.address,
             }
@@ -57,7 +57,7 @@ storage.post("/profile/image", upload.single('image'), async (req, res) => {
 
         const fileUrl = supabase.storage.from("jarsnft_profile").getPublicUrl(result.path).data.publicUrl;
 
-        const user_cover = await prisma.user_profile.update({
+        const user_cover = await prisma.userProfile.update({
             where: {
                 address: addressSchema.data.address
             },
@@ -97,7 +97,7 @@ storage.post("/profile/cover", upload.single('cover'), async (req, res) => {
 
         const fileUrl = supabase.storage.from("jarsnft_profile").getPublicUrl(result.path).data.publicUrl;
 
-        const user_cover = await prisma.user_profile.update({
+        const user_cover = await prisma.userProfile.update({
             where: {
                 address: addressSchema.data.address
             },

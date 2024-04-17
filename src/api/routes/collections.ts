@@ -10,7 +10,7 @@ export const collections = Router();
 
 collections.get("/", async (req, res) => {
   try {
-    const collections = await prisma.nft_collections.findMany({ take: 10 });
+    const collections = await prisma.nftCollections.findMany({ take: 10 });
     return res.status(200).json(collections);
   } catch (error) {
     return res.status(400).json({ message: "Error fetching Collections" });
@@ -31,9 +31,11 @@ collections.get("/getContractsForOwner", async (req, res) => {
   }
 
   try {
-    const collections = await prisma.nft_collections.findMany({
-      where: { owner: ownerSchema.data.owner },
-    });
+    const collections = await prisma.nftCollections.findMany({
+      where: {
+        owner: ownerSchema.data.owner,
+      },
+    })
     return res.status(200).json(collections);
   } catch (error) {
     return res.status(400).json({ message: "Error fetching Collections" });
