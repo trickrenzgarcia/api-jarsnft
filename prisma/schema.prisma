@@ -31,25 +31,28 @@ model Collections {
   twitter_username          String   @db.Text
   instagram_username        String   @db.Text
   created_at                DateTime @default(now()) @db.Timestamp(0)
+
   @@map("collections")
 }
 
 model Nonce {
   id    Int    @id @default(autoincrement())
   nonce String
+
   @@map("nonce")
 }
 
 model Users {
-  id         Int      @id @default(autoincrement())
-  uid        String   @unique(map: "uid", length: 255) @db.Text
-  email      String?  @unique(map: "Users_email_key")
-  name       String?  @db.Text
-  address    String   @unique(map: "Users_address_key")
+  id         Int          @id @default(autoincrement())
+  uid        String       @unique(map: "uid", length: 255) @db.Text
+  email      String?      @unique(map: "Users_email_key")
+  name       String?      @db.Text
+  address    String       @unique(map: "Users_address_key")
   is_listed  Boolean
-  created_at DateTime @default(now())
-  role       String   @default("user")
-  profile   UserProfile?
+  created_at DateTime     @default(now())
+  role       String       @default("user")
+  profile    UserProfile?
+
   @@map("users")
 }
 
@@ -60,6 +63,7 @@ model ApiKeys {
   apiKey     String   @db.VarChar(255)
   created_at DateTime @default(now()) @db.Date
   expired_at DateTime @db.Date
+
   @@map("api_keys")
 }
 
@@ -76,6 +80,7 @@ model Contracts {
   app_uri                String   @db.Text
   createdAt              DateTime @default(now()) @db.DateTime(0)
   updatedAt              DateTime @default(now()) @db.DateTime(0)
+
   @@map("contracts")
 }
 
@@ -93,6 +98,7 @@ model NftCollections {
   trusted_forwarders      String   @db.LongText
   owner                   String   @db.Text
   created_at              DateTime @default(now()) @db.DateTime(0)
+
   @@map("nft_collections")
 }
 
@@ -103,7 +109,7 @@ model UserProfile {
   is_verified Boolean  @default(false)
   socials     String?  @db.LongText
   updated_at  DateTime @default(now()) @db.DateTime(0)
-  user        Users?    @relation(fields: [address], references: [address])
+  user        Users    @relation(fields: [address], references: [address])
+
   @@map("user_profile")
 }
-
