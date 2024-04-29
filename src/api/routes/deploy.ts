@@ -1,6 +1,7 @@
 import { makeEndPoint } from "@/middlewares/makeEndPoint";
 import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { prisma } from "@/prisma";
+import { getCollection } from "@/simplehash";
 import sdk from "@/thirdweb";
 import { ethers } from "ethers";
 import { Router, Request, Response } from "express";
@@ -37,12 +38,19 @@ deploy.post(
       }
 
       const contract = await sdk.getContract(contractSchema.data.contractAddress);
-      const metadata = await contract.metadata.get();
+      const prepareMetadata = contract.metadata.get();
+
+      const [metadata, collection] = await Promise.all([
+        prepareMetadata,
+        getCollection(contractSchema.data.contractAddress),
+      ]);
+      const collection_id = collection.collections[0].collection_id;
 
       try {
         const collection = await prisma.nftCollections.create({
           data: {
             contract: contractSchema.data.contractAddress,
+            collection_id: collection_id,
             name: metadata.name,
             symbol: metadata.symbol || "",
             app_uri: metadata.app_uri || "",

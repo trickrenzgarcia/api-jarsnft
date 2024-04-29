@@ -1,0 +1,74 @@
+{
+  "next_cursor": null,
+  "next": null,
+  "previous": null,
+  "collections": [
+    {
+      "collection_id": "cf963cf99630f440f64cebd743741c74",
+      "name": "Hev Abi",
+      "description": "We run this city\nHuh yeah aha\nDowntown kinaladkad ang QC kami may ari nito\nEleven-o-three Hev Abi stupid tindig mo ako nag-imbento\nAko may class kahit galing ghetto chicks salbahe ako ang premyo\nSiya pumoste sa labas humastle tangina ako 'yung sumweldo (yeah aha)\nWe outside malamig sa labas nasa pipe malagkit malakas (aha God damn)\nWalang stripe 'di pwedeng umangkas\nT-shirt white buo agad ang swag totoo lang ako 'di ako balagbag\nTodo na kalaban 'di pa 'ko malaglag 'di nila malaman-laman ng aming trap\n'Di niya daw kilala si Hev Abi pakisabi na lang sa bitch na 'yan ako ang God (yeah)\nDowntown goons paki namin kung mata namin tuss\nTalaga lang tama namin mala-Bruce Lee sa dalang doobie pinaghihimay\nSalapi 'di pinaghihintay ten toes downtown 'di mapilay\n'Di mo maaagaw 'pag ako nag-iingay 'di niyo maaagaw 'pag kami nag-iingay\nOh ang sabi ko\nDowntown kinaladkad ang QC kami may ari nito\nEleven-o-three Hev Abi 'yung syota mo ginawa kong preso",
+      "image_url": "https://lh3.googleusercontent.com/ldgJuGDedMjcj0cOVGjpAxXlx8jh7QFnq9uVejAHTA489MFkkq98LwEX8phduKNUYCyBsnY_zpUDZWITfl6p53AWi2Ac8YXyvY8",
+      "image_properties": {
+        "width": 512,
+        "height": 512,
+        "mime_type": "image/jpeg"
+      },
+      "banner_image_url": null,
+      "category": null,
+      "is_nsfw": false,
+      "external_url": null,
+      "twitter_username": null,
+      "discord_url": null,
+      "instagram_username": null,
+      "medium_username": null,
+      "telegram_url": null,
+      "marketplace_pages": [
+        {
+          "marketplace_id": "opensea",
+          "marketplace_name": "OpenSea",
+          "marketplace_collection_id": "hev-abi",
+          "collection_url": "https://testnets.opensea.io/collection/hev-abi",
+          "verified": false
+        }
+      ],
+      "metaplex_mint": null,
+      "metaplex_candy_machine": null,
+      "metaplex_first_verified_creator": null,
+      "floor_prices": [],
+      "top_bids": [],
+      "distinct_owner_count": 1,
+      "distinct_nft_count": 4,
+      "total_quantity": 4,
+      "chains": ["ethereum-sepolia"],
+      "top_contracts": ["ethereum-sepolia.0x317197bcbf59603cd999ffc9e090279b35b60249"],
+      "collection_royalties": [
+        {
+          "source": "opensea",
+          "total_creator_fee_basis_points": 200,
+          "recipients": [
+            {
+              "address": "0x18a583Eb4D800ACc57067274e6b496db7Bd7E1Fd",
+              "percentage": 100,
+              "basis_points": 200
+            }
+          ]
+        }
+      ],
+      "top_contract_details": [
+        {
+          "chain": "ethereum-sepolia",
+          "contract_address": "0x317197Bcbf59603cd999fFC9e090279b35b60249",
+          "name": "Hev Abi",
+          "type": "ERC721",
+          "symbol": "HAV",
+          "distinct_nft_count": 4,
+          "deployed_by": "0x18a583Eb4D800ACc57067274e6b496db7Bd7E1Fd",
+          "deployed_via_contract": "0x76F948E5F13B9A84A81E5681df8682BBf524805E",
+          "deployment_date": "2024-01-17T14:11:48Z",
+          "owned_by": "0x18a583Eb4D800ACc57067274e6b496db7Bd7E1Fd",
+          "has_multiple_collections": false
+        }
+      ]
+    }
+  ]
+}

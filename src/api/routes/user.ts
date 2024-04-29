@@ -2,25 +2,26 @@ import { makeEndPoint } from "@/middlewares/makeEndPoint";
 import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { prisma } from "@/prisma";
 import { randomUUID } from "crypto";
+import { ethers } from "ethers";
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 
 export const userRouter = Router();
 
-const walletAddressSchema = z.string().refine((value) => /^0x[a-fA-F0-9]/.test(value), {
-  message: 'Wallet address must be starts with "0x" prefix and 45 characters long.',
+const addressSchema = z.string().refine((value) => ethers.utils.isAddress(value), {
+  message: "Invalid address",
 });
 
 const createUserSchema = z.object({
-  address: walletAddressSchema,
+  address: addressSchema,
 });
 
 const userParamsSchema = z.object({
-  address: walletAddressSchema,
+  address: addressSchema,
 });
 
 const updateUserSchema = z.object({
-  address: walletAddressSchema,
+  address: addressSchema,
   name: z.string().min(3, { message: "Name must be at least 3 character long" }),
   email: z.string().email(),
   is_listed: z.boolean(),
@@ -69,7 +70,7 @@ userRouter.get("/profile/:address", verifyEndPoint, async (req, res) => {
     },
     include: {
       profile: true,
-    }
+    },
   });
 
   if (!userWithProfile) {
@@ -85,6 +86,7 @@ userRouter.post(
   makeEndPoint(
     createUserSchema,
     async (req: Request<any, any, z.infer<typeof createUserSchema>, any>, res: Response) => {
+      console.log("Hey");
       const createUser = await prisma.users.create({
         data: {
           uid: randomUUID(),
@@ -92,6 +94,7 @@ userRouter.post(
           is_listed: false,
         },
       });
+      console.log(createUser);
 
       if (!createUser) {
         return res.status(500).json({ message: "Failed to create user" });

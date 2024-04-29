@@ -8,33 +8,40 @@ export const nonce = Router();
 
 const nonceSchema = z.object({
   nonce: z.string().min(1),
-})
+});
 
-nonce.post("/validate", verifyEndPoint, makeEndPoint(nonceSchema, async (req, res) => {
-  const nonce = await prisma.nonce.findFirst({
-    where: {
-      nonce: req.body.nonce
+nonce.post(
+  "/validate",
+  verifyEndPoint,
+  makeEndPoint(nonceSchema, async (req, res) => {
+    const nonce = await prisma.nonce.findFirst({
+      where: {
+        nonce: req.body.nonce,
+      },
+    });
+
+    if (nonce) {
+      return res.status(409).json(true);
     }
+
+    return res.status(200).json(false);
   })
+);
 
-  if(nonce) {
-    return res.status(409).json({ isExists: nonce })
-  }
+nonce.post("/create", verifyEndPoint, async (req, res) => {
+  try {
+    const createNonce = await prisma.nonce.create({
+      data: {
+        nonce: req.body.nonce,
+      },
+    });
 
-  return res.status(200).json({ isExists: nonce })
-}));
-
-nonce.post("/create", verifyEndPoint, makeEndPoint(nonceSchema, async (req, res) => {
-  const createNonce = await prisma.nonce.create({
-    data: {
-      nonce: req.body.nonce
+    if (!createNonce) {
+      return res.status(500).json({ message: "Failed to create nonce" });
     }
-  })
 
-  if(!createNonce) {
-    return res.status(500).json({ message: "Internal Server Error." })
+    return res.status(201).json(createNonce);
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to create nonce", error: error });
   }
-
-  return res.status(200).json({ createNonce })
-}));
-
+});

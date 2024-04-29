@@ -45,7 +45,7 @@ model Nonce {
 model Users {
   id         Int          @id @default(autoincrement())
   uid        String       @unique(map: "uid", length: 255) @db.Text
-  email      String?      @unique(map: "Users_email_key")
+  email      String?      @db.Text
   name       String?      @db.Text
   address    String       @unique(map: "Users_address_key")
   is_listed  Boolean
@@ -86,6 +86,7 @@ model Contracts {
 
 model NftCollections {
   contract                String   @id @db.VarChar(255)
+  collection_id           String   @unique
   image                   String   @db.Text
   name                    String   @db.Text
   symbol                  String   @db.Text
@@ -97,6 +98,7 @@ model NftCollections {
   primary_sale_recipient  String   @db.Text
   trusted_forwarders      String   @db.LongText
   owner                   String   @db.Text
+  view_count              Int      @default(0)
   created_at              DateTime @default(now()) @db.DateTime(0)
 
   @@map("nft_collections")

@@ -1,50 +1,59 @@
-import { getCollectionMetadata } from "@/prisma";
+import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
+import { getCollectionMetadata, prisma } from "@/prisma";
+import { getCollection } from "@/simplehash";
 import sdk from "@/thirdweb";
+import { ethers } from "ethers";
 import { type RequestHandler, Router, Request, Response } from "express";
 import { z } from "zod";
 
 export const collection = Router();
 
-const makeGetEndpoint =
-  <TQuery>(
-    schema: z.Schema<TQuery>,
-    callback: (req: Request<TQuery, any, any, any>, res: Response) => void
-  ) =>
-  (req: Request<TQuery, any, any, any>, res: Response) => {
-    const params = schema.safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send(params.error.message);
-    }
-
-    return callback(req, res);
-  };
-
 const schema = z.object({
-  contract: z.string().refine((value) => value.startsWith("0x")),
+  contractAddress: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Invalid Address Input is not a valid address or ENS name.",
+  }),
 });
 
-collection.get("/", (req: Request, res: Response) => {
-  // http method not allowed 405
-  res.status(405).json({
-    statusCode: res.statusCode,
-    success: true,
-    message: `${req.method} is not allowed.`,
-  });
+collection.get("/getCollection", verifyEndPoint, async (req, res) => {
+  const contractAddress = schema.safeParse(req.query);
+  if (!contractAddress.success) {
+    return res.status(400).json(JSON.parse(contractAddress.error.message));
+  }
+
+  try {
+    const collection = prisma.nftCollections.findUnique({
+      where: {
+        contract: contractAddress.data.contractAddress,
+      },
+    });
+    const simpleHash = getCollection(contractAddress.data.contractAddress);
+    const [collectionData, simpleHashData] = await Promise.all([collection, simpleHash]);
+    const data = { ...collectionData, simpleHashData: simpleHashData };
+    return res.status(200).json(data);
+  } catch (error) {
+    return res.status(400).json({ message: "Error fetching Collection" });
+  }
 });
 
-collection.get(
-  "/:contract",
-  makeGetEndpoint(schema, async (req, res) => {
-    const metadata = await getCollectionMetadata(req.params.contract);
+collection.put("/updateViewCount", verifyEndPoint, async (req, res) => {
+  const contractAddress = schema.safeParse(req.query);
+  if (!contractAddress.success) {
+    return res.status(400).json(JSON.parse(contractAddress.error.message));
+  }
 
-    if (!metadata) {
-      return res.status(404).json("Not found");
-    }
+  try {
+    const collection = prisma.nftCollections.update({
+      where: {
+        contract: contractAddress.data.contractAddress,
+      },
+      data: {
+        view_count: { increment: 1 },
+      },
+      select: { view_count: true },
+    });
 
-    const contract = await sdk.getContract(req.params.contract);
-    const nfts = await contract.erc721.getAll();
-
-    res.status(200).json({ metadata, nfts });
-  })
-);
+    return res.status(200).json(collection);
+  } catch (error) {
+    return res.status(400).json({ message: "Error fetching Collection" });
+  }
+});

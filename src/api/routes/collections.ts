@@ -35,9 +35,13 @@ collections.get("/getContractsForOwner", async (req, res) => {
       where: {
         owner: ownerSchema.data.owner,
       },
-    })
+    });
     return res.status(200).json(collections);
   } catch (error) {
     return res.status(400).json({ message: "Error fetching Collections" });
   }
+});
+
+collections.get("/getTrendingCollections", async (req, res) => {
+  // https://api.simplehash.com/api/v0/nfts/collections/trending?chains=ethereum&limit=100
 });
