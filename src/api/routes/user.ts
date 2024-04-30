@@ -28,9 +28,7 @@ const updateUserSchema = z.object({
 });
 
 userRouter.get("/all", verifyEndPoint, async (req, res) => {
-  const users = await prisma.users.findMany({
-    where: { is_listed: true },
-  });
+  const users = await prisma.users.findMany();
 
   if (!users) {
     return res.status(404).json({ message: "No users found" });
