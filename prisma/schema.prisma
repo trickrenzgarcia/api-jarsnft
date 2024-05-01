@@ -48,7 +48,7 @@ model Users {
   email      String?      @db.Text
   name       String?      @db.Text
   address    String       @unique(map: "Users_address_key")
-  is_listed  Boolean
+  is_listed  Boolean      @default(false)
   created_at DateTime     @default(now())
   role       String       @default("user")
   profile    UserProfile?

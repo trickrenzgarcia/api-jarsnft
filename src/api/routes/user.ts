@@ -5,137 +5,90 @@ import { randomUUID } from "crypto";
 import { ethers } from "ethers";
 import { Router, Request, Response } from "express";
 import { z } from "zod";
+import { address } from "./address";
 
 export const userRouter = Router();
 
-const addressSchema = z.string().refine((value) => ethers.utils.isAddress(value), {
-  message: "Invalid address",
+const schema = z.object({
+  address: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Invalid address",
+  }),
 });
 
-const createUserSchema = z.object({
-  address: addressSchema,
-});
-
-const userParamsSchema = z.object({
-  address: addressSchema,
-});
-
-const updateUserSchema = z.object({
-  address: addressSchema,
-  name: z.string().min(3, { message: "Name must be at least 3 character long" }),
-  email: z.string().email(),
-  is_listed: z.boolean(),
-});
-
-userRouter.get("/all", verifyEndPoint, async (req, res) => {
-  const users = await prisma.users.findMany({
-    where: { is_listed: true },
-  });
-
-  if (!users) {
-    return res.status(404).json({ message: "No users found" });
-  }
+userRouter.get("/getUsers", async (req, res) => {
+  const users = await prisma.users.findMany();
 
   return res.status(200).json(users);
 });
 
-userRouter.get(
-  "/:address",
-  verifyEndPoint,
-  async (req: Request<z.infer<typeof userParamsSchema>, any, any, any>, res: Response) => {
-    const params = userParamsSchema.safeParse(req.params);
-    if (!params.success) {
-      const error = JSON.parse(params.error.message);
-      return res.status(400).json(error);
-    }
+userRouter.get("/getUser", async (req, res) => {
+  const userSchema = schema.safeParse(req.query);
 
-    const user = await prisma.users.findUnique({
-      where: {
-        address: req.params.address,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res.status(200).json(user);
+  if (!userSchema.success) {
+    return res.status(400).json(JSON.parse(userSchema.error.message));
   }
-);
 
-userRouter.get("/profile/:address", verifyEndPoint, async (req, res) => {
-  const userWithProfile = await prisma.users.findUnique({
+  const user = await prisma.users.findUnique({
     where: {
-      address: req.params.address,
-    },
-    include: {
-      profile: true,
+      address: userSchema.data.address,
     },
   });
 
-  if (!userWithProfile) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  return res.status(200).json(userWithProfile);
+  return res.status(200).json(user);
 });
 
-userRouter.post(
-  "/create",
-  verifyEndPoint,
-  makeEndPoint(
-    createUserSchema,
-    async (req: Request<any, any, z.infer<typeof createUserSchema>, any>, res: Response) => {
-      console.log("Hey");
-      const createUser = await prisma.users.create({
-        data: {
-          uid: randomUUID(),
-          address: req.body.address,
-          is_listed: false,
-        },
-      });
-      console.log(createUser);
+const createUserSchema = z.object({
+  address: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Invalid address",
+  }),
+  name: z.string().optional(),
+  email: z.string().optional(),
+});
 
-      if (!createUser) {
-        return res.status(500).json({ message: "Failed to create user" });
-      }
+userRouter.post("/createUser", verifyEndPoint, async (req, res) => {
+  const userSchema = createUserSchema.safeParse(req.body);
 
-      return res.status(201).json(createUser);
-    }
-  )
-);
+  if (!userSchema.success) {
+    return res.status(400).json(JSON.parse(userSchema.error.message));
+  }
 
-userRouter.put(
-  "/update",
-  verifyEndPoint,
-  makeEndPoint(
-    updateUserSchema,
-    async (req: Request<any, any, z.infer<typeof updateUserSchema>, any>, res: Response) => {
-      // Check if the address exists in the database
-      const user = await prisma.users.findUnique({
-        where: {
-          address: req.body.address,
-        },
-        select: { address: true },
-      });
+  const user = await prisma.users.create({
+    data: {
+      uid: randomUUID(),
+      address: userSchema.data.address,
+      name: userSchema.data.name,
+      email: userSchema.data.email,
+    },
+  });
 
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+  return res.status(200).json(user);
+});
 
-      // Update the user if address exists in the database
-      const updatedUser = await prisma.users.update({
-        where: {
-          address: req.body.address,
-        },
-        data: {
-          name: req.body.name,
-          email: req.body.email,
-          is_listed: req.body.is_listed,
-        },
-      });
+const updateUserSchema = z.object({
+  address: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Invalid address",
+  }),
+  name: z.string().optional(),
+  email: z.string().optional(),
+});
 
-      res.status(200).json(updatedUser);
-    }
-  )
-);
+userRouter.post("/updateUser", verifyEndPoint, async (req, res) => {
+  const userSchema = updateUserSchema.safeParse(req.body);
+
+  if (!userSchema.success) {
+    return res.status(400).json(JSON.parse(userSchema.error.message));
+  }
+
+  const user = await prisma.users.update({
+    where: {
+      address: userSchema.data.address,
+    },
+    data: {
+      name: userSchema.data.name,
+      email: userSchema.data.email,
+      is_listed: true,
+    },
+  });
+
+  return res.status(200).json(user);
+});
