@@ -28,6 +28,7 @@ app.use("/mint", router.mintRouter);
 app.use("/deploy", router.deploy);
 app.use("/nfts", router.nftsRouter);
 app.use("/storage", router.storage);
+app.use("/contracts", router.contracts);
 
 // Middlewares
 //app.use(middleware.notFound);

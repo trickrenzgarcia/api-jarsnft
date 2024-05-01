@@ -41,11 +41,9 @@ const createUserSchema = z.object({
   address: z.string().refine((value) => ethers.utils.isAddress(value), {
     message: "Invalid address",
   }),
-  name: z.string().optional(),
-  email: z.string().optional(),
 });
 
-userRouter.post("/createUser", verifyEndPoint, async (req, res) => {
+userRouter.post("/createUser", async (req, res) => {
   const userSchema = createUserSchema.safeParse(req.body);
 
   if (!userSchema.success) {
@@ -56,8 +54,6 @@ userRouter.post("/createUser", verifyEndPoint, async (req, res) => {
     data: {
       uid: randomUUID(),
       address: userSchema.data.address,
-      name: userSchema.data.name,
-      email: userSchema.data.email,
     },
   });
 
@@ -72,23 +68,22 @@ const updateUserSchema = z.object({
   email: z.string().optional(),
 });
 
-userRouter.post("/updateUser", verifyEndPoint, async (req, res) => {
+userRouter.post("/updateUser", async (req, res) => {
   const userSchema = updateUserSchema.safeParse(req.body);
 
   if (!userSchema.success) {
     return res.status(400).json(JSON.parse(userSchema.error.message));
   }
 
-  const user = await prisma.users.update({
-    where: {
-      address: userSchema.data.address,
-    },
-    data: {
-      name: userSchema.data.name,
-      email: userSchema.data.email,
-      is_listed: true,
-    },
-  });
+  const { address, email, name } = userSchema.data;
 
-  return res.status(200).json(user);
+  try {
+    const user = await prisma.users.update({
+      where: { address: address },
+      data: { email: email, name: name, is_listed: true },
+    });
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).json("Internal Server Error");
+  }
 });

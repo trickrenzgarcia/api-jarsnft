@@ -11,3 +11,4 @@ export * from "./mint";
 export * from "./deploy";
 export * from "./nfts";
 export * from "./storage";
+export * from "./contracts";
