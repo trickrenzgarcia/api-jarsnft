@@ -18,7 +18,14 @@ const schema = z.object({
     })
 })
 
-storage.post("/profile", verifyEndPoint, async (req, res) => {
+const updateAvatarSchema = z.object({
+    address: z.string().refine((value) => ethers.utils.isAddress(value), {
+        message: "Invalid address"
+    }),
+    image_url: z.string().min(1)
+})
+
+storage.post("/profile", async (req, res) => {
     const addressSchema = schema.safeParse(req.body);
 
     if (!addressSchema.success) return res.status(400).json(addressSchema.error.errors);
@@ -27,6 +34,26 @@ storage.post("/profile", verifyEndPoint, async (req, res) => {
         const user_profile = await prisma.userProfile.create({
             data: {
                 address: addressSchema.data.address,
+            }
+        })
+        return res.status(200).json(user_profile);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+})
+
+storage.post("/profile/updateAvatar", verifyEndPoint, async (req, res) => {
+    const updateAvatar = updateAvatarSchema.safeParse(req.body);
+
+    if (!updateAvatar.success) return res.status(400).json(updateAvatar.error.errors);
+
+    try {
+        const user_profile = await prisma.userProfile.update({
+            where: {
+                address: updateAvatar.data.address
+            },
+            data: {
+                image_url: updateAvatar.data.image_url
             }
         })
         return res.status(200).json(user_profile);

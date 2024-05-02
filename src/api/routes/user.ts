@@ -15,7 +15,7 @@ const schema = z.object({
   }),
 });
 
-userRouter.get("/getUsers", async (req, res) => {
+userRouter.get("/getUsers", verifyEndPoint, async (req, res) => {
   const users = await prisma.users.findMany();
 
   return res.status(200).json(users);
@@ -36,6 +36,35 @@ userRouter.get("/getUser", async (req, res) => {
 
   return res.status(200).json(user);
 });
+
+const userProfileSchema = z.object({
+  address: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Invalid address",
+  }),
+});
+
+userRouter.get("/getUserProfile", async (req, res) => {
+  const user = userProfileSchema.safeParse(req.query);
+
+  if(!user.success) {
+    return res.status(400).json(user.error.errors);
+  }
+
+  const userProfile = await prisma.users.findUnique({
+    where: {
+      address: user.data.address,
+    },
+    include: {
+      profile: true
+    }
+  });
+
+  if(!userProfile) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json(userProfile);
+})
 
 const createUserSchema = z.object({
   address: z.string().refine((value) => ethers.utils.isAddress(value), {
@@ -68,9 +97,9 @@ const updateUserSchema = z.object({
   email: z.string().optional(),
 });
 
-userRouter.post("/updateUser", async (req, res) => {
+userRouter.post("/updateUser", verifyEndPoint, makeEndPoint(updateUserSchema, async (req: Request<any, any, z.infer<typeof updateUserSchema>, any>, res) => {
   const userSchema = updateUserSchema.safeParse(req.body);
-
+  
   if (!userSchema.success) {
     return res.status(400).json(JSON.parse(userSchema.error.message));
   }
@@ -86,4 +115,4 @@ userRouter.post("/updateUser", async (req, res) => {
   } catch (error) {
     return res.status(500).json("Internal Server Error");
   }
-});
+}));
