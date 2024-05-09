@@ -12,7 +12,6 @@ const nonceSchema = z.object({
 
 nonce.post(
   "/validate",
-  verifyEndPoint,
   makeEndPoint(nonceSchema, async (req, res) => {
     const nonce = await prisma.nonce.findFirst({
       where: {
@@ -28,7 +27,7 @@ nonce.post(
   })
 );
 
-nonce.post("/create", verifyEndPoint, async (req, res) => {
+nonce.post("/create", async (req, res) => {
   try {
     const createNonce = await prisma.nonce.create({
       data: {

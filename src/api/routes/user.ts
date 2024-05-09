@@ -5,7 +5,6 @@ import { randomUUID } from "crypto";
 import { ethers } from "ethers";
 import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { address } from "./address";
 
 export const userRouter = Router();
 
@@ -13,6 +12,10 @@ const schema = z.object({
   address: z.string().refine((value) => ethers.utils.isAddress(value), {
     message: "Invalid address",
   }),
+});
+
+const nonceSchema = z.object({
+  nonce: z.string().optional(),
 });
 
 userRouter.get("/getUsers", verifyEndPoint, async (req, res) => {
@@ -116,3 +119,55 @@ userRouter.post("/updateUser", verifyEndPoint, makeEndPoint(updateUserSchema, as
     return res.status(500).json("Internal Server Error");
   }
 }));
+
+userRouter.post("/nonceExists", async (req, res) => {
+  const nonce = nonceSchema.safeParse(req.body);
+  
+  if(!nonce.success) {
+    return res.status(400).json(nonce.error.errors);
+  }
+
+  try {
+    const nonceExists = await prisma.nonce.findUnique({
+      where: {
+        nonce: nonce.data.nonce,
+      }
+    });
+    if(!nonceExists) {
+      return res.status(409).json(false);
+    }
+
+    return res.status(200).json(true);
+  } catch (error) {
+    return res.status(500).json("Internal Server Error");
+  }
+});
+
+userRouter.post("/createNonce", async (req, res) => {
+  const nonce = nonceSchema.safeParse(req.body);
+
+  if(!nonce.success) {
+    return res.status(400).json(nonce.error.errors);
+  }
+
+  if(!nonce.data.nonce) {
+    return res.status(400).json("Nonce is required");
+  }
+
+  try {
+    const createNonce = await prisma.nonce.create({
+      data: {
+        nonce: nonce.data.nonce,
+      }
+    });
+
+    if(!createNonce) {
+      return res.status(500).json("Internal Server Error");
+    }
+
+    return res.status(201).json(createNonce);
+  } catch (error) {
+    return res.status(500).json("Internal Server Error");
+  }
+});
+
