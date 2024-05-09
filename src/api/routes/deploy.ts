@@ -38,19 +38,13 @@ deploy.post(
       }
 
       const contract = await sdk.getContract(contractSchema.data.contractAddress);
-      const prepareMetadata = contract.metadata.get();
+      const metadata = await contract.metadata.get();
 
-      const [metadata, collection] = await Promise.all([
-        prepareMetadata,
-        getCollection(contractSchema.data.contractAddress),
-      ]);
-      const collection_id = collection.collections[0].collection_id;
 
       try {
         const collection = await prisma.nftCollections.create({
           data: {
             contract: contractSchema.data.contractAddress,
-            collection_id: collection_id,
             name: metadata.name,
             symbol: metadata.symbol || "",
             app_uri: metadata.app_uri || "",
@@ -61,7 +55,7 @@ deploy.post(
             seller_fee_basis_points: metadata.seller_fee_basis_points || 0,
             primary_sale_recipient: metadata.primary_sale_recipient || "",
             owner: contractSchema.data.owner,
-            trusted_forwarders: metadata.trusted_forwarders || [],
+            trusted_forwarders: metadata.trusted_forwarders,
           },
         });
         return res.status(200).json(collection);

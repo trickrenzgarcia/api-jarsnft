@@ -76,7 +76,7 @@ storage.post("/profile/image", upload.single('image'), async (req, res) => {
         const fileName = `${uuid}.${file.originalname.split('.').pop()}`;
         const { data: result, error } = await supabase.storage.from("jarsnft_profile").upload(fileName, file.buffer, {
             contentType: file.mimetype
-        })
+        })  
 
         if(error) {
             return res.status(500).json({ error });

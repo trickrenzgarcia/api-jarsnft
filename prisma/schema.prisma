@@ -36,8 +36,9 @@ model Collections {
 }
 
 model Nonce {
-  id    Int    @id @default(autoincrement())
-  nonce String
+  id        Int      @id @default(autoincrement())
+  nonce     String
+  logged_at DateTime @default(now())
 
   @@map("nonce")
 }
@@ -86,7 +87,6 @@ model Contracts {
 
 model NftCollections {
   contract                String   @id @db.VarChar(255)
-  collection_id           String   @unique
   image                   String   @db.Text
   name                    String   @db.Text
   symbol                  String   @db.Text
@@ -96,7 +96,7 @@ model NftCollections {
   fee_recipient           String   @db.Text
   seller_fee_basis_points Int
   primary_sale_recipient  String   @db.Text
-  trusted_forwarders      String   @db.LongText
+  trusted_forwarders      Json
   owner                   String   @db.Text
   view_count              Int      @default(0)
   created_at              DateTime @default(now()) @db.DateTime(0)
@@ -114,4 +114,26 @@ model UserProfile {
   user        Users    @relation(fields: [address], references: [address])
 
   @@map("user_profile")
+}
+
+model NftTransactions {
+  nft_id                String   @id @db.VarChar(255)
+  chain                 String
+  contract_address      String
+  token_id              String
+  event_type            String
+  from_address          String
+  to_address            String
+  quantity              Int
+  quantity_string       String?
+  timestamp             DateTime @default(now()) @db.DateTime(0)
+  block_number          Int
+  block_hash            String
+  transaction           String
+  transaction_initiator String
+  log_index             Int
+  batch_transfer_index  Int
+  sale_details          String?
+
+  @@map("nft_transactions")
 }
