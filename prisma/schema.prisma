@@ -37,7 +37,7 @@ model Collections {
 
 model Nonce {
   id    Int    @id @default(autoincrement())
-  nonce String
+  nonce String @unique
   logged_at DateTime @default(now())
 
   @@map("nonce")
