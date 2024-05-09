@@ -14,6 +14,12 @@ const schema = z.object({
   }),
 });
 
+const owner = z.object({
+  owner: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Invalid Address Input is not a valid address or ENS name.",
+  }),
+});
+
 collection.get("/getCollection", verifyEndPoint, async (req, res) => {
   const contractAddress = schema.safeParse(req.query);
   if (!contractAddress.success) {
@@ -50,6 +56,25 @@ collection.put("/updateViewCount", verifyEndPoint, async (req, res) => {
         view_count: { increment: 1 },
       },
       select: { view_count: true },
+    });
+
+    return res.status(200).json(collection);
+  } catch (error) {
+    return res.status(400).json({ message: "Error fetching Collection" });
+  }
+});
+
+collection.get("/getCollectionsByOwner", verifyEndPoint, async (req, res) => {
+  const ownerAddress = owner.safeParse(req.query);
+  if (!ownerAddress.success) {
+    return res.status(400).json(JSON.parse(ownerAddress.error.message));
+  }
+
+  try {
+    const collection = await prisma.nftCollections.findMany({
+      where: {
+        owner: ownerAddress.data.owner,
+      },
     });
 
     return res.status(200).json(collection);

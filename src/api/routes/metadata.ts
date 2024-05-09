@@ -21,7 +21,6 @@ metadata.get("/all", async (req, res) => {
 
 metadata.get("/getContractMetadata", verifyEndPoint, async (req, res) => {
   const contractAddress = schema.safeParse(req.query);
-  console.log(contractAddress);
 
   if (!contractAddress.success) {
     return res.status(400).json(JSON.parse(contractAddress.error.message));

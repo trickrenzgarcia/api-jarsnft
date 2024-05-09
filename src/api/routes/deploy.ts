@@ -26,48 +26,41 @@ deploy.get("/nft-collection", verifyEndPoint, async (req, res) => {
 
 deploy.post(
   "/nft-collection",
-  verifyEndPoint,
-  makeEndPoint(
-    deployContractSchema,
-    async (req: Request<any, any, z.infer<typeof deployContractSchema>, any>, res: Response) => {
-      const contractSchema = deployContractSchema.safeParse(req.body);
+  async (req, res) => {
+    const contractSchema = deployContractSchema.safeParse(req.body);
 
-      if (!contractSchema.success) {
-        const error = JSON.parse(contractSchema.error.message);
-        return res.status(400).json(error);
-      }
-
-      const contract = await sdk.getContract(contractSchema.data.contractAddress);
-      const prepareMetadata = contract.metadata.get();
-
-      const [metadata, collection] = await Promise.all([
-        prepareMetadata,
-        getCollection(contractSchema.data.contractAddress),
-      ]);
-      const collection_id = collection.collections[0].collection_id;
-
-      try {
-        const collection = await prisma.nftCollections.create({
-          data: {
-            contract: contractSchema.data.contractAddress,
-            collection_id: collection_id,
-            name: metadata.name,
-            symbol: metadata.symbol || "",
-            app_uri: metadata.app_uri || "",
-            description: metadata.description || "",
-            image: metadata.image || "",
-            external_link: metadata.external_link || "",
-            fee_recipient: metadata.fee_recipient || "",
-            seller_fee_basis_points: metadata.seller_fee_basis_points || 0,
-            primary_sale_recipient: metadata.primary_sale_recipient || "",
-            owner: contractSchema.data.owner,
-            trusted_forwarders: metadata.trusted_forwarders || [],
-          },
-        });
-        return res.status(200).json(collection);
-      } catch (error) {
-        return res.status(400).json({ message: "Error creating Collection" });
-      }
+    if (!contractSchema.success) {
+      const error = JSON.parse(contractSchema.error.message);
+      return res.status(400).json(error);
     }
-  )
+
+    const contract = await sdk.getContract(contractSchema.data.contractAddress);
+    const metadata = await contract.metadata.get();
+    
+    //const collection_id = collection.collections[0].collection_id;
+    //const collection = await getCollection(contractSchema.data.contractAddress);
+    //console.log(collection);
+
+    try {
+      const collection = await prisma.nftCollections.create({
+        data: {
+          contract: contractSchema.data.contractAddress,
+          name: metadata.name,
+          symbol: metadata.symbol || "",
+          app_uri: metadata.app_uri || "",
+          description: metadata.description || "",
+          image: metadata.image || "",
+          external_link: metadata.external_link || "",
+          fee_recipient: metadata.fee_recipient || "",
+          seller_fee_basis_points: metadata.seller_fee_basis_points || 0,
+          primary_sale_recipient: metadata.primary_sale_recipient || "",
+          owner: contractSchema.data.owner,
+          trusted_forwarders: metadata.trusted_forwarders || [],
+        },
+      });
+      return res.status(200).json(collection);
+    } catch (error) {
+      return res.status(400).json({ message: "Error creating Collection", error: error });
+    }
+  }
 );
