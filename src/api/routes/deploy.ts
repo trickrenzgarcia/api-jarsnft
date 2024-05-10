@@ -1,5 +1,4 @@
 import { makeEndPoint } from "@/middlewares/makeEndPoint";
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { prisma } from "@/prisma";
 import { getCollection } from "@/simplehash";
 import sdk from "@/thirdweb";
@@ -18,7 +17,7 @@ const deployContractSchema = z.object({
   }),
 });
 
-deploy.get("/nft-collection", verifyEndPoint, async (req, res) => {
+deploy.get("/nft-collection", async (req, res) => {
   const allCollections = await prisma.nftCollections.findMany({ take: 10 });
 
   return res.status(200).json(allCollections);

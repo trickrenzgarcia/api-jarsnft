@@ -1,5 +1,4 @@
 import { makeEndPoint } from "@/middlewares/makeEndPoint";
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { prisma } from "@/prisma";
 import { randomUUID } from "crypto";
 import { ethers } from "ethers";
@@ -18,7 +17,7 @@ const nonceSchema = z.object({
   nonce: z.string().optional(),
 });
 
-userRouter.get("/getUsers", verifyEndPoint, async (req, res) => {
+userRouter.get("/getUsers", async (req, res) => {
   const users = await prisma.users.findMany();
 
   return res.status(200).json(users);
@@ -28,7 +27,7 @@ userRouter.get("/getUser", async (req, res) => {
   const userSchema = schema.safeParse(req.query);
 
   if (!userSchema.success) {
-    return res.status(400).json(JSON.parse(userSchema.error.message));
+    return res.status(400).json(userSchema.error.errors);
   }
 
   const user = await prisma.users.findUnique({
@@ -100,7 +99,7 @@ const updateUserSchema = z.object({
   email: z.string().optional(),
 });
 
-userRouter.post("/updateUser", verifyEndPoint, makeEndPoint(updateUserSchema, async (req: Request<any, any, z.infer<typeof updateUserSchema>, any>, res) => {
+userRouter.post("/updateUser", makeEndPoint(updateUserSchema, async (req: Request<any, any, z.infer<typeof updateUserSchema>, any>, res) => {
   const userSchema = updateUserSchema.safeParse(req.body);
   
   if (!userSchema.success) {

@@ -1,5 +1,4 @@
 import { makeEndPoint } from "@/middlewares/makeEndPoint";
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { prisma } from "@/prisma";
 import { Router } from "express";
 import { z } from "zod";

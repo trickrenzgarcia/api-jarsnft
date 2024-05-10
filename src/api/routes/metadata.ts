@@ -1,4 +1,3 @@
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { getAllMetadata, prisma } from "@/prisma";
 import { ethers } from "ethers";
 import { Router } from "express";
@@ -19,7 +18,7 @@ metadata.get("/all", async (req, res) => {
   res.status(200).json(allMetadata);
 });
 
-metadata.get("/getContractMetadata", verifyEndPoint, async (req, res) => {
+metadata.get("/getContractMetadata", async (req, res) => {
   const contractAddress = schema.safeParse(req.query);
 
   if (!contractAddress.success) {

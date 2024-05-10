@@ -1,4 +1,3 @@
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { getContractsByDeployer } from "@/simplehash";
 import { ethers } from "ethers";
 import { Router } from "express";
@@ -12,7 +11,7 @@ const schema = z.object({
   }),
 });
 
-contracts.get("/getContractsForOwner", verifyEndPoint, async (req, res) => {
+contracts.get("/getContractsForOwner", async (req, res) => {
   const walletAddress = schema.safeParse(req.query);
 
   if (!walletAddress.success) {

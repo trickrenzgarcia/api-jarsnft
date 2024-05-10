@@ -5,7 +5,6 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/prisma";
 import { z } from "zod";
 import { ethers } from "ethers";
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 
 const store = multer.memoryStorage();
 const upload = multer({ storage: store });
@@ -42,7 +41,7 @@ storage.post("/profile", async (req, res) => {
     }
 })
 
-storage.post("/profile/updateAvatar", verifyEndPoint, async (req, res) => {
+storage.post("/profile/updateAvatar", async (req, res) => {
     const updateAvatar = updateAvatarSchema.safeParse(req.body);
 
     if (!updateAvatar.success) return res.status(400).json(updateAvatar.error.errors);

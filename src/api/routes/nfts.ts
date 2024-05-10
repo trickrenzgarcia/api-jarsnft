@@ -1,5 +1,4 @@
 import alchemy from "@/alchemy";
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { getNFTByTokenId } from "@/simplehash";
 import { ethers } from "ethers";
 import { Router, Response, Request } from "express";
@@ -19,7 +18,7 @@ const contractSchema = z.object({
   }),
 });
 
-nftsRouter.get("/getNFTsForOwner", verifyEndPoint, async (req, res) => {
+nftsRouter.get("/getNFTsForOwner", async (req, res) => {
   const owner = ownerSchema.safeParse(req.query);
 
   if (!owner.success) {

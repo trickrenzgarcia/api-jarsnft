@@ -1,4 +1,3 @@
-import { verifyEndPoint } from "@/middlewares/verifyEndPoint";
 import { getCollectionMetadata, prisma } from "@/prisma";
 import { getCollection } from "@/simplehash";
 import sdk from "@/thirdweb";
@@ -20,7 +19,7 @@ const owner = z.object({
   }),
 });
 
-collection.get("/getCollection", verifyEndPoint, async (req, res) => {
+collection.get("/getCollection", async (req, res) => {
   const contractAddress = schema.safeParse(req.query);
   if (!contractAddress.success) {
     return res.status(400).json(JSON.parse(contractAddress.error.message));
@@ -41,7 +40,7 @@ collection.get("/getCollection", verifyEndPoint, async (req, res) => {
   }
 });
 
-collection.put("/updateViewCount", verifyEndPoint, async (req, res) => {
+collection.put("/updateViewCount", async (req, res) => {
   const contractAddress = schema.safeParse(req.query);
   if (!contractAddress.success) {
     return res.status(400).json(JSON.parse(contractAddress.error.message));
@@ -64,7 +63,7 @@ collection.put("/updateViewCount", verifyEndPoint, async (req, res) => {
   }
 });
 
-collection.get("/getCollectionsByOwner", verifyEndPoint, async (req, res) => {
+collection.get("/getCollectionsByOwner", async (req, res) => {
   const ownerAddress = owner.safeParse(req.query);
   if (!ownerAddress.success) {
     return res.status(400).json(JSON.parse(ownerAddress.error.message));

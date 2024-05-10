@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import crypto from 'crypto';
 import { prisma } from '@/prisma';
-import { verifyEndPoint } from '@/middlewares/verifyEndPoint';
 import { z } from 'zod';
 import { makeEndPoint } from '@/middlewares/makeEndPoint';
 
@@ -12,7 +11,7 @@ const schema = z.object({
     name: z.string().min(0)
 });
 
-secretRouter.post('/create', verifyEndPoint, makeEndPoint(schema, async (req, res) => {
+secretRouter.post('/create', makeEndPoint(schema, async (req, res) => {
     const randomBytes = crypto.randomBytes(16)
     const randomHex = randomBytes.toString('hex')
     
