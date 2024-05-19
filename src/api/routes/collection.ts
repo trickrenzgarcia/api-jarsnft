@@ -81,3 +81,14 @@ collection.get("/getCollectionsByOwner", async (req, res) => {
     return res.status(400).json({ message: "Error fetching Collection" });
   }
 });
+
+collection.get("/thirdweb", async (req, res) => {
+  const contractAddress = schema.safeParse(req.query);
+  if (!contractAddress.success) {
+    return res.status(400).json(JSON.parse(contractAddress.error.message));
+  }
+  const contract = await sdk.getContract(contractAddress.data.contractAddress);
+  const metadata = await contract.metadata.get();
+  
+  res.status(200).json(metadata);
+})
