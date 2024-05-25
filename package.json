@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.13.0",
+    "@prisma/client": "^5.14.0",
     "@supabase/supabase-js": "^2.42.4",
     "@thirdweb-dev/sdk": "^4.0.38",
     "alchemy-sdk": "^3.2.1",
