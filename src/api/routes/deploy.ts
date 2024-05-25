@@ -36,30 +36,32 @@ deploy.post(
     const contract = await sdk.getContract(contractSchema.data.contractAddress);
     const metadata = await contract.metadata.get();
     
-    //const collection_id = collection.collections[0].collection_id;
-    //const collection = await getCollection(contractSchema.data.contractAddress);
-    //console.log(collection);
 
     try {
-      const collection = await prisma.nftCollections.create({
-        data: {
-          contract: contractSchema.data.contractAddress,
-          name: metadata.name,
-          symbol: metadata.symbol || "",
-          app_uri: metadata.app_uri || "",
-          description: metadata.description || "",
-          image: metadata.image || "",
-          external_link: metadata.external_link || "",
-          fee_recipient: metadata.fee_recipient || "",
-          seller_fee_basis_points: metadata.seller_fee_basis_points || 0,
-          primary_sale_recipient: metadata.primary_sale_recipient || "",
-          owner: contractSchema.data.owner,
-          trusted_forwarders: metadata.trusted_forwarders || [],
-        },
-      });
-      return res.status(200).json(collection);
+      if(metadata) {
+        const collection = await prisma.nftCollections.create({
+          data: {
+            contract: contract.getAddress(),
+            name: metadata.name,
+            symbol: metadata.symbol,
+            app_uri: metadata.app_uri,
+            description: metadata.description,
+            image: metadata.image,
+            external_link: metadata.external_link,
+            fee_recipient: metadata.fee_recipient,
+            seller_fee_basis_points: metadata.seller_fee_basis_points,
+            primary_sale_recipient: metadata.primary_sale_recipient,
+            owner: contractSchema.data.owner,
+            trusted_forwarders: metadata.trusted_forwarders,
+          },
+        });
+        return res.status(200).json(collection);
+      }
+      
+      return res.status(404).json({ message: "Error - No Thirdweb Metadata" });
     } catch (error) {
       return res.status(400).json({ message: "Error creating Collection", error: error });
     }
+    res.status(200).json(metadata);
   }
 );

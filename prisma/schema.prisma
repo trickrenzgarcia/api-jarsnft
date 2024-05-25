@@ -87,14 +87,14 @@ model Contracts {
 
 model NftCollections {
   contract                String   @id @db.VarChar(255)
-  image                   String   @db.Text
+  image                   String?   @db.Text
   name                    String   @db.Text
-  symbol                  String   @db.Text
-  description             String   @db.Text
-  app_uri                 String   @db.Text
-  external_link           String   @db.Text
-  fee_recipient           String   @db.Text
-  seller_fee_basis_points Int
+  symbol                  String?   @db.Text
+  description             String?   @db.Text
+  app_uri                 String?   @db.Text
+  external_link           String?  @db.Text
+  fee_recipient           String?   @db.Text
+  seller_fee_basis_points Int?
   primary_sale_recipient  String   @db.Text
   trusted_forwarders      String?  @db.LongText
   owner                   String   @db.Text
