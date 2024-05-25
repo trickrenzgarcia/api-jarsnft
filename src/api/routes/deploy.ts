@@ -17,6 +17,13 @@ const deployContractSchema = z.object({
   }),
 });
 
+const deployMintedSchema = z.object({
+  contractAddress: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Contract Address Input is not a valid address or ENS name.",
+  }),
+  tokenId: z.string().min(1)
+});
+
 deploy.get("/nft-collection", async (req, res) => {
   const allCollections = await prisma.nftCollections.findMany({ take: 10 });
 
@@ -37,31 +44,56 @@ deploy.post(
     const metadata = await contract.metadata.get();
     
 
-    try {
-      if(metadata) {
-        const collection = await prisma.nftCollections.create({
-          data: {
-            contract: contract.getAddress(),
-            name: metadata.name,
-            symbol: metadata.symbol,
-            app_uri: metadata.app_uri,
-            description: metadata.description,
-            image: metadata.image,
-            external_link: metadata.external_link,
-            fee_recipient: metadata.fee_recipient,
-            seller_fee_basis_points: metadata.seller_fee_basis_points,
-            primary_sale_recipient: metadata.primary_sale_recipient,
-            owner: contractSchema.data.owner,
-            trusted_forwarders: metadata.trusted_forwarders,
-          },
-        });
-        return res.status(200).json(collection);
-      }
-      
-      return res.status(404).json({ message: "Error - No Thirdweb Metadata" });
-    } catch (error) {
-      return res.status(400).json({ message: "Error creating Collection", error: error });
+    if(!metadata) {
+      return res.status(404).json({ error: "Contract does not have metadata." });
     }
-    res.status(200).json(metadata);
+
+    try {
+      const collection = await prisma.nftCollections.create({
+        data: {
+          contract: contractSchema.data.contractAddress,
+          owner: contractSchema.data.owner,
+          name: metadata.name,
+          symbol: metadata.symbol,
+          description: metadata.description,
+          primary_sale_recipient: metadata.fee_recipient,
+          app_uri: metadata.app_uri,
+          external_link: metadata.external_link,
+          fee_recipient: contractSchema.data.owner,
+          seller_fee_basis_points: metadata.seller_fee_basis_points,
+          image: metadata.image,
+          trusted_forwarders: JSON.stringify([]),       
+        }
+      });
+  
+      return res.status(200).json(collection);
+    } catch (error)  {
+      return res.status(500).json("Something went wrong. Please try again.");
+    }
   }
 );
+
+deploy.get('/nft-minted', async (req, res) => {
+  const mintedSchema = deployMintedSchema.safeParse(req.query);
+
+  if(!mintedSchema.success) {
+    const error = JSON.parse(mintedSchema.error.message);
+    return res.status(400).json(error);
+  }
+
+
+
+  const contract = await sdk.getContract(mintedSchema.data.contractAddress);
+  const nft = await contract.erc721.get(mintedSchema.data.tokenId);
+
+  res.status(200).json(nft);
+});
+
+deploy.post('/nft-minted', async (req, res) => {
+  const mintedSchema = deployMintedSchema.safeParse(req.body);
+
+  if(!mintedSchema.success) {
+    const error = JSON.parse(mintedSchema.error.message);
+    return res.status(400).json(error);
+  }
+});
