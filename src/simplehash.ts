@@ -1,6 +1,6 @@
 import { SimpleHashCollection } from "./types/simple-hash/collection";
 import { SimpleHashContracts } from "./types/simple-hash/contracts";
-import { SimpleHashNFT } from "./types/simple-hash/nft";
+import { SimpleHashNFT, SimpleHashNFTByWallet } from "./types/simple-hash/nft";
 
 const baseURL = "https://api.simplehash.com/api/v0";
 const apiKey = process.env.SIMPLEHASH_API_KEY as string;
@@ -46,4 +46,12 @@ export const getNFTByTokenId = async (contractAddress: string, tokenId: string) 
   );
   const data = await response.json();
   return data as SimpleHashNFT;
+}
+
+export const getNFTsByWallet = async (walletAddress: string) => {
+  const response = await get(
+    `${baseURL}/nfts/owners?chains=${chain}&wallet_addresses=${walletAddress}&limit=50`
+  );
+  const data = await response.json();
+  return data as SimpleHashNFTByWallet;
 }
