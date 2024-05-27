@@ -8,6 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Collections {
+  id                        Int      @id @default(autoincrement())
+  cid                       String   @default(uuid()) @db.Text
+  collection                String   @db.Text
+  name                      String   @db.Text
+  description               String   @db.Text
+  image_url                 String   @db.Text
+  banner_image_url          String   @db.Text
+  owner                     String   @db.Text
+  safelist_status           String   @db.Text
+  category                  String   @db.Text
+  is_disabled               Boolean
+  is_nsfw                   Boolean
+  trait_offers_enabled      Boolean
+  collection_offers_enabled Boolean
+  jarsnft_url               String   @db.Text
+  project_url               String   @db.Text
+  wiki_url                  String   @db.Text
+  discord_url               String   @db.Text
+  telegram_url              String   @db.Text
+  twitter_username          String   @db.Text
+  instagram_username        String   @db.Text
+  created_at                DateTime @default(now()) @db.Timestamp(0)
+
+  @@map("collections")
+}
+
 model Nonce {
   id        Int      @id @default(autoincrement())
   nonce     String   @unique
@@ -41,6 +68,23 @@ model ApiKeys {
   @@map("api_keys")
 }
 
+model Contracts {
+  contract_id            String   @id(length: 255) @db.Text
+  name                   String   @db.Text
+  description            String   @db.Text
+  image                  String   @db.Text
+  external_link          String   @db.Text
+  symbol                 String   @db.Text
+  owner                  String   @db.Text
+  primary_sale_recipient String   @db.Text
+  fee_recipient          String   @db.Text
+  app_uri                String   @db.Text
+  createdAt              DateTime @default(now()) @db.DateTime(0)
+  updatedAt              DateTime @default(now()) @db.DateTime(0)
+
+  @@map("contracts")
+}
+
 model NftCollections {
   contract                String   @id @db.VarChar(255)
   image                   String?  @db.Text
@@ -54,9 +98,6 @@ model NftCollections {
   primary_sale_recipient  String?   @db.Text
   trusted_forwarders      String?  @db.LongText
   owner                   String   @db.Text
-  is_verified             Boolean  @default(false)
-  is_nsfw                 Boolean  @default(false)
-  safe_listed             Boolean  @default(false)
   view_count              Int      @default(0)
   created_at              DateTime @default(now()) @db.DateTime(0)
 
