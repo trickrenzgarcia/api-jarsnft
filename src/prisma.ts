@@ -1,4 +1,4 @@
-import { PrismaClient, Collections } from "@prisma/client";
+import { PrismaClient, NftCollections } from "@prisma/client";
 import { ZodError, z } from "zod";
 
 export const prisma = new PrismaClient();
@@ -14,9 +14,9 @@ export const getUserAddress = async (address: string) => {
 };
 
 export const getCollectionMetadata = async (contract: string) => {
-  const data = await prisma.collections.findFirst({
+  const data = await prisma.nftCollections.findFirst({
     where: {
-      cid: contract,
+      contract: contract,
     },
   });
 
@@ -24,7 +24,7 @@ export const getCollectionMetadata = async (contract: string) => {
 };
 
 export const getAllMetadata = async () => {
-  const data = await prisma.collections.findMany();
+  const data = await prisma.nftCollections.findMany();
 
   return data;
 };
