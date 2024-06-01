@@ -1,4 +1,4 @@
-import { PrismaClient, NftCollections } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { ZodError, z } from "zod";
 
 export const prisma = new PrismaClient();
