@@ -95,11 +95,13 @@ model UserProfile {
 
 model UserFavorites {
   id          Int      @id @default(autoincrement())
-  uid        String       @unique(map: "uid", length: 255) @db.Text
-  contract String      @db.VarChar(255)
-  token_id Int
-  name       String    @db.Text
-  image_url  String    @db.Text
+  uid         String    @db.Text
+  contract    String      @db.VarChar(255)
+  token_id    Int
+  name        String    @db.Text
+  image_url   String    @db.Text
+  added_at    DateTime @default(now()) @db.DateTime(0)
+  updated_at  DateTime?
 
   @@map("user_favorites")
 }
