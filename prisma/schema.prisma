@@ -93,6 +93,17 @@ model UserProfile {
   @@map("user_profile")
 }
 
+model UserFavorites {
+  id          Int      @id @default(autoincrement())
+  uid        String       @unique(map: "uid", length: 255) @db.Text
+  contract String      @db.VarChar(255)
+  token_id Int
+  name       String    @db.Text
+  image_url  String    @db.Text
+
+  @@map("user_favorites")
+}
+
 model NftTransactions {
   nft_id                String   @id @db.VarChar(255)
   chain                 String
