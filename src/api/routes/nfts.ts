@@ -87,7 +87,7 @@ nftsRouter.get("/views", async (req, res) => {
 
   }
 
-})
+});
 
 nftsRouter.post("/views", async (req, res) => {
   const nft = nftSchema.safeParse(req.body);
@@ -128,6 +128,16 @@ nftsRouter.post("/views", async (req, res) => {
 
     return res.status(200).json(updatedView);
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    // @ts-ignore
+    return res.status(500).json({ error: "Internal server error", message: error.message });
   }
+});
+
+nftsRouter.get("/getNFTActivities", async (req, res) => {
+  const nft = nftSchema.safeParse(req.query);
+
+  if (!nft.success) {
+    return res.status(400).json(JSON.parse(nft.error.message));
+  }
+
 })
