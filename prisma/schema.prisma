@@ -104,6 +104,15 @@ model UserFavorites {
   @@map("user_favorites")
 }
 
+model NftViews {
+  id          Int      @id @default(autoincrement())
+  contract    String   @db.VarChar(255)
+  token_id    String   @unique @db.VarChar(255)
+  view_count  Int      @default(0)
+
+  @@map("nft_views")
+}
+
 model NftTransactions {
   nft_id                String   @id @db.VarChar(255)
   chain                 String

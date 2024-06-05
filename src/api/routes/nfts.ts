@@ -1,4 +1,5 @@
 import alchemy from "@/alchemy";
+import { prisma } from "@/prisma";
 import { getNFTByTokenId, getNFTsByWallet } from "@/simplehash";
 import { ethers } from "ethers";
 import { Router, Response, Request } from "express";
@@ -39,7 +40,7 @@ const nftSchema = z.object({
   contractAddress: z.string().refine((value) => ethers.utils.isAddress(value), {
     message: "Input is not a valid address or ENS name.",
   }),
-  tokenId: z.string(),
+  tokenId: z.string().min(1),
 });
 
 nftsRouter.get("/:contractAddress/:tokenId", async(req, res) => {
@@ -64,4 +65,69 @@ nftsRouter.get("/getNFTsByWallet", async (req, res) => {
   const nfts = await getNFTsByWallet(wallet.data.walletAddress);
 
   return res.status(200).json(nfts.nfts);
+});
+
+nftsRouter.get("/views", async (req, res) => {
+  const nft = nftSchema.safeParse(req.query);
+
+  if (!nft.success) {
+    return res.status(400).json(JSON.parse(nft.error.message));
+  }
+
+  try {
+    const data = await prisma.nftViews.findFirst({
+      where: {
+        contract: nft.data.contractAddress,
+        token_id: nft.data.tokenId
+      }
+    });
+
+    return res.status(200).json(data);
+  } catch (error) {
+
+  }
+
+})
+
+nftsRouter.post("/views", async (req, res) => {
+  const nft = nftSchema.safeParse(req.body);
+
+  if (!nft.success) {
+    return res.status(400).json(JSON.parse(nft.error.message));
+  }
+
+  try {
+    const data = await prisma.nftViews.findFirst({
+      where: {
+        contract: nft.data.contractAddress,
+        token_id: nft.data.tokenId
+      }
+    });
+
+    if(!data) {
+      const newView = await prisma.nftViews.create({
+        data: {
+          contract: nft.data.contractAddress,
+          token_id: nft.data.tokenId,
+          view_count: 1
+        }
+      });
+      return res.status(200).json(newView);
+    }
+
+    const updatedView = await prisma.nftViews.update({
+      where: {
+        id: data.id,
+        contract: nft.data.contractAddress,
+        token_id: nft.data.tokenId
+      },
+      data: {
+        view_count: data.view_count + 1
+      }
+    });
+
+    return res.status(200).json(updatedView);
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
 })
