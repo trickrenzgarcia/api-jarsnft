@@ -1,6 +1,7 @@
 import alchemy from "@/alchemy";
 import { prisma } from "@/prisma";
 import { getNFTByTokenId, getNFTsByWallet } from "@/simplehash";
+import sdk from "@/thirdweb";
 import { ethers } from "ethers";
 import { Router, Response, Request } from "express";
 import { z } from "zod";
@@ -139,5 +140,8 @@ nftsRouter.get("/getNFTActivities", async (req, res) => {
   if (!nft.success) {
     return res.status(400).json(JSON.parse(nft.error.message));
   }
-
+  
+  const contract = await sdk.getContract(nft.data.contractAddress);
+  const data = await contract.events.getAllEvents();
+  return res.status(200).json(data);
 })
