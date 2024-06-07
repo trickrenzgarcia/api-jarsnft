@@ -11,6 +11,9 @@ declare global {
       JWT_TOKEN: string;
       LOCAL_DATABASE_URL: string;
       DATABASE_URL: string;
+      INFURA_API_PUBLIC_KEY: string;
+      INFURA_API_SECRET_KEY: string;
+      INFURA_JSON_RPC_HTTPS: string;
     }
   }
 }

@@ -99,7 +99,6 @@ model UserFavorites {
   contract    String      @db.VarChar(255)
   token_id    String    @db.Text
   added_at    DateTime @default(now()) @db.DateTime(0)
-  updated_at  DateTime?
 
   @@map("user_favorites")
 }
@@ -113,24 +112,13 @@ model NftViews {
   @@map("nft_views")
 }
 
-model NftTransactions {
-  nft_id                String   @id @db.VarChar(255)
-  chain                 String
-  contract_address      String
-  token_id              String
-  event_type            String
-  from_address          String
-  to_address            String
-  quantity              Int
-  quantity_string       String?
-  timestamp             DateTime @default(now()) @db.DateTime(0)
-  block_number          Int
-  block_hash            String
-  transaction           String
-  transaction_initiator String
-  log_index             Int
-  batch_transfer_index  Int
-  sale_details          String?
+model NftEvents {
+  id          Int      @id @default(autoincrement())
+  event_id    String   @unique @default(uuid())
+  event_type  String   @db.VarChar(255)
+  transaction_hash String @db.VarChar(255)
+  address     String?   @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.DateTime(0)
 
-  @@map("nft_transactions")
+  @@map("nft_events")
 }
