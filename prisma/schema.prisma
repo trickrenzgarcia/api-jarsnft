@@ -41,23 +41,6 @@ model ApiKeys {
   @@map("api_keys")
 }
 
-model Contracts {
-  contract_id            String   @id(length: 255) @db.Text
-  name                   String   @db.Text
-  description            String   @db.Text
-  image                  String   @db.Text
-  external_link          String   @db.Text
-  symbol                 String   @db.Text
-  owner                  String   @db.Text
-  primary_sale_recipient String   @db.Text
-  fee_recipient          String   @db.Text
-  app_uri                String   @db.Text
-  createdAt              DateTime @default(now()) @db.DateTime(0)
-  updatedAt              DateTime @default(now()) @db.DateTime(0)
-
-  @@map("contracts")
-}
-
 model NftCollections {
   contract                String   @id @db.VarChar(255)
   image                   String?  @db.Text
@@ -68,15 +51,16 @@ model NftCollections {
   external_link           String?  @db.Text
   fee_recipient           String?  @db.Text
   seller_fee_basis_points Int?
-  primary_sale_recipient  String?   @db.Text
+  primary_sale_recipient  String?  @db.Text
   trusted_forwarders      String?  @db.LongText
   owner                   String   @db.Text
+  view_count              Int      @default(0)
+  created_at              DateTime @default(now()) @db.DateTime(0)
   is_nsfw                 Boolean  @default(false)
   is_verified             Boolean  @default(false)
   safe_listed             Boolean  @default(false)
-  view_count              Int      @default(0)
-  created_at              DateTime @default(now()) @db.DateTime(0)
 
+  @@index([contract, name])
   @@map("nft_collections")
 }
 
@@ -112,4 +96,28 @@ model NftTransactions {
   sale_details          String?
 
   @@map("nft_transactions")
+}
+
+model contracts {
+  contract_id            String   @id(length: 255) @db.Text
+  name                   String   @db.Text
+  description            String   @db.Text
+  image                  String   @db.Text
+  external_link          String   @db.Text
+  symbol                 String   @db.Text
+  owner                  String   @db.Text
+  primary_sale_recipient String   @db.Text
+  fee_recipient          String   @db.Text
+  app_uri                String   @db.Text
+  createdAt              DateTime @default(now()) @db.DateTime(0)
+  updatedAt              DateTime @default(now()) @db.DateTime(0)
+}
+
+model user_favorites {
+  id         Int       @id @default(autoincrement())
+  uid        String    @db.Text
+  contract   String    @db.VarChar(255)
+  token_id   String    @db.Text
+  added_at   DateTime  @default(now()) @db.DateTime(0)
+  updated_at DateTime?
 }
