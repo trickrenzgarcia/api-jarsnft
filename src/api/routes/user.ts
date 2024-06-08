@@ -17,6 +17,14 @@ const nonceSchema = z.object({
   nonce: z.string().optional(),
 });
 
+const favoriteScheme = z.object({
+  uid: z.string().uuid(),
+  contract: z.string().refine((value) => ethers.utils.isAddress(value), {
+    message: "Invalid Contract Address",
+  }),
+  token_id: z.string(),
+})
+
 userRouter.get("/getUsers", async (req, res) => {
   const users = await prisma.users.findMany();
 
@@ -170,3 +178,98 @@ userRouter.post("/createNonce", async (req, res) => {
   }
 });
 
+userRouter.post("/addToFavorite", async (req, res) => {
+  const favorite = favoriteScheme.safeParse(req.body);
+
+  if(!favorite.success) {
+    return res.status(400).json(favorite.error.errors);
+  }
+
+  try {
+    const favoriteExists = await prisma.userFavorites.findFirst({
+      where: {
+        uid: favorite.data.uid,
+        contract: favorite.data.contract,
+        token_id: favorite.data.token_id,
+      }
+    });
+
+    if(!favoriteExists) {
+      const createFavorite = await prisma.userFavorites.create({
+        data: {
+          uid: favorite.data.uid,
+          contract: favorite.data.contract,
+          token_id: favorite.data.token_id,
+        }
+      });
+
+      if(!createFavorite) {
+        return res.status(500).json("Internal Server Error");
+      }
+
+      return res.status(201).json(createFavorite);
+    } else {
+      const deleteFavorite = await prisma.userFavorites.delete({
+        where: {
+          id: favoriteExists.id,
+          uid: favorite.data.uid,
+          contract: favorite.data.contract,
+          token_id: favorite.data.token_id,
+        }
+      });
+      return res.status(200).json(deleteFavorite);
+    }
+  } catch (error) {
+    // @ts-ignore
+    return res.status(500).json("Internal Server Error", error.message);
+  }
+});
+
+userRouter.get("/isUserLiked", async (req, res) => {
+  const favorite = favoriteScheme.safeParse(req.query);
+
+  if(!favorite.success) {
+    return res.status(400).json(favorite.error.errors);
+  }
+
+  try {
+    const favoriteExists = await prisma.userFavorites.findFirst({
+      where: {
+        uid: favorite.data.uid,
+        contract: favorite.data.contract,
+        token_id: favorite.data.token_id,
+      }
+    });
+
+    if(!favoriteExists) {
+      return res.status(200).json(false);
+    }
+
+    return res.status(200).json(true);
+  } catch (error) {
+    // @ts-ignore
+    return res.status(500).json("Internal Server Error: ", error.message);
+  }
+})
+
+userRouter.get("/getFavoriteCount", async (req, res) => {
+  const favCountSchema = favoriteScheme.omit({ uid: true }).safeParse(req.query);
+
+  if(!favCountSchema.success) {
+    return res.status(400).json("Bad request");
+  }
+
+  try {
+    const count = await prisma.userFavorites.count({
+      where: {
+        contract: favCountSchema.data.contract,
+        token_id: favCountSchema.data.token_id,
+      }
+    })
+
+    return res.status(200).json({ count });
+  } catch (e) {
+    // @ts-ignore
+    return res.status(500).json("Internal Server Error: ", e.message);
+  }
+});

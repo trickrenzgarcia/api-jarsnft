@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^5.15.0",
     "@supabase/supabase-js": "^2.42.4",
     "@thirdweb-dev/sdk": "^4.0.38",
     "alchemy-sdk": "^3.2.1",
@@ -42,7 +42,7 @@
     "nodemon": "^3.0.3",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.13",
-    "prisma": "^5.14.0",
+    "prisma": "^5.15.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
