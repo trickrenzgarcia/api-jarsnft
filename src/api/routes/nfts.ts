@@ -147,7 +147,7 @@ const transactionSchema = z.object({
     "CancelledListing",
     "CancelledAuction",
     "AuctionClosed"
-  ])
+  ]).optional()
 })
 
 nftsRouter.post("/tx", async (req, res) => {
@@ -164,7 +164,7 @@ nftsRouter.post("/tx", async (req, res) => {
     const data = await prisma.nftEvents.create({
       data: {
         transaction_hash: txHash,
-        event_type: eventType
+        event_type: eventType ? eventType : "Unknown"
       }
     })
 
@@ -210,8 +210,8 @@ nftsRouter.get("/getTransaction", async (req, res) => {
   if (!tx.success) {
     return res.status(400).json(JSON.parse(tx.error.message));
   }
-
-  const provider = new ethers.providers.InfuraProvider(process.env.CHAIN_ID, process.env.INFURA_API_PUBLIC_KEY);
+  const CHAIN_ID = parseInt(process.env.CHAIN_ID.toString());
+  const provider = new ethers.providers.InfuraProvider(CHAIN_ID, process.env.INFURA_API_PUBLIC_KEY);
 
   try {
     const txResult = await provider.getTransaction(tx.data.transactionHash);
