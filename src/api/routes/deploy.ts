@@ -15,6 +15,7 @@ const deployContractSchema = z.object({
   owner: z.string().refine((value) => ethers.utils.isAddress(value), {
     message: "Owner Address Input is not a valid address or ENS name.",
   }),
+  category: z.enum(["art", "photography", "pfp", "gaming"])
 });
 
 const deployMintedSchema = z.object({
@@ -62,7 +63,8 @@ deploy.post(
           fee_recipient: contractSchema.data.owner,
           seller_fee_basis_points: metadata.seller_fee_basis_points,
           image: metadata.image,
-          trusted_forwarders: JSON.stringify([]),       
+          trusted_forwarders: JSON.stringify([]),
+          category: contractSchema.data.category,       
         }
       });
   

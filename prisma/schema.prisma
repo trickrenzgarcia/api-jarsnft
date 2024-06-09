@@ -68,8 +68,9 @@ model NftCollections {
   external_link           String?  @db.Text
   fee_recipient           String?  @db.Text
   seller_fee_basis_points Int?
-  primary_sale_recipient  String?   @db.Text
+  primary_sale_recipient  String?  @db.Text
   trusted_forwarders      String?  @db.LongText
+  category                String?  @db.Text
   owner                   String   @db.Text
   is_nsfw                 Boolean  @default(false)
   is_verified             Boolean  @default(false)
