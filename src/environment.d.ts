@@ -14,6 +14,8 @@ declare global {
       INFURA_API_PUBLIC_KEY: string;
       INFURA_API_SECRET_KEY: string;
       INFURA_JSON_RPC_HTTPS: string;
+      CHAIN: string;
+      CHAIN_ID: number;
     }
   }
 }

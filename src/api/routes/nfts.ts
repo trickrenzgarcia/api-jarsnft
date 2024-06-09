@@ -137,15 +137,17 @@ nftsRouter.post("/views", async (req, res) => {
 
 const transactionSchema = z.object({
   transactionHash: z.string().min(10),
-  eventType: z.literal("TokensMinted").
-    or(z.literal("Transfer").
-    or(z.literal("NewListing")).
-    or(z.literal("NewAuction")).
-    or(z.literal("NewBid")).
-    or(z.literal("NewSale")).
-    or(z.literal("CancelledListing")).
-    or(z.literal("CancelledAuction")).
-    or(z.literal("AuctionClosed")))
+  eventType: z.enum([
+    "TokensMinted",
+    "Transfer",
+    "NewListing",
+    "NewAuction",
+    "NewBid",
+    "NewSale",
+    "CancelledListing",
+    "CancelledAuction",
+    "AuctionClosed"
+  ])
 })
 
 nftsRouter.post("/tx", async (req, res) => {
@@ -202,27 +204,32 @@ nftsRouter.get("/activities", async (req, res) => {
   // return res.status(200).json(data);
 })
 
-nftsRouter.get("/infura", async (req, res) => {
-  const hash = req.query.hash as string;
-  const provider = new ethers.providers.InfuraProvider(11155111, process.env.INFURA_API_PUBLIC_KEY);
+nftsRouter.get("/getTransaction", async (req, res) => {
+  const tx = transactionSchema.safeParse(req.query);
+
+  if (!tx.success) {
+    return res.status(400).json(JSON.parse(tx.error.message));
+  }
+
+  const provider = new ethers.providers.InfuraProvider(process.env.CHAIN_ID, process.env.INFURA_API_PUBLIC_KEY);
 
   try {
-    const tx = await provider.getTransaction(hash);
-    
-    if(!tx.blockNumber) {
+    const txResult = await provider.getTransaction(tx.data.transactionHash);
+
+    if(!txResult.blockNumber) {
       return res.status(404).json({ error: "Transaction not found" });
     }
 
-    const block = await provider.getBlock(tx.blockNumber);
+    const block = await provider.getBlock(txResult.blockNumber);
 
     if(!block) {
       return res.status(404).json({ error: "Block not found" });
     }
 
     const timestamp = new Date(block.timestamp * 1000);
-    return res.status(200).json({ tx, block, timestamp });
-  } catch (error) {
-    console.error('Error:', error);
+
+    return res.status(200).json({ tx, timestamp });
+  } catch (e) {
     // @ts-ignore
     return res.status(500).json({ error: "Internal server error", message: error.message });
   }
