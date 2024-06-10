@@ -45,7 +45,7 @@ const nftSchema = z.object({
   tokenId: z.string().min(1),
 });
 
-nftsRouter.get("/:contractAddress/:tokenId", async(req, res) => {
+nftsRouter.get("/:contractAddress/:tokenId", async (req, res) => {
   const nft = nftSchema.safeParse(req.params);
 
   if (!nft.success) {
@@ -54,8 +54,8 @@ nftsRouter.get("/:contractAddress/:tokenId", async(req, res) => {
 
   const data = await getNFTByTokenId(nft.data.contractAddress, nft.data.tokenId);
 
-  res.status(200).json(data)
-})
+  res.status(200).json(data);
+});
 
 nftsRouter.get("/getNFTsByWallet", async (req, res) => {
   const wallet = walletSchema.safeParse(req.query);
@@ -80,15 +80,12 @@ nftsRouter.get("/views", async (req, res) => {
     const data = await prisma.nftViews.findFirst({
       where: {
         contract: nft.data.contractAddress,
-        token_id: nft.data.tokenId
-      }
+        token_id: nft.data.tokenId,
+      },
     });
 
     return res.status(200).json(data);
-  } catch (error) {
-
-  }
-
+  } catch (error) {}
 });
 
 nftsRouter.post("/views", async (req, res) => {
@@ -102,17 +99,17 @@ nftsRouter.post("/views", async (req, res) => {
     const data = await prisma.nftViews.findFirst({
       where: {
         contract: nft.data.contractAddress,
-        token_id: nft.data.tokenId
-      }
+        token_id: nft.data.tokenId,
+      },
     });
 
-    if(!data) {
+    if (!data) {
       const newView = await prisma.nftViews.create({
         data: {
           contract: nft.data.contractAddress,
           token_id: nft.data.tokenId,
-          view_count: 1
-        }
+          view_count: 1,
+        },
       });
       return res.status(200).json(newView);
     }
@@ -121,11 +118,11 @@ nftsRouter.post("/views", async (req, res) => {
       where: {
         id: data.id,
         contract: nft.data.contractAddress,
-        token_id: nft.data.tokenId
+        token_id: nft.data.tokenId,
       },
       data: {
-        view_count: data.view_count + 1
-      }
+        view_count: data.view_count + 1,
+      },
     });
 
     return res.status(200).json(updatedView);
@@ -137,18 +134,20 @@ nftsRouter.post("/views", async (req, res) => {
 
 const transactionSchema = z.object({
   transactionHash: z.string().min(10),
-  eventType: z.enum([
-    "TokensMinted",
-    "Transfer",
-    "NewListing",
-    "NewAuction",
-    "NewBid",
-    "NewSale",
-    "CancelledListing",
-    "CancelledAuction",
-    "AuctionClosed"
-  ]).optional()
-})
+  eventType: z
+    .enum([
+      "TokensMinted",
+      "Transfer",
+      "NewListing",
+      "NewAuction",
+      "NewBid",
+      "NewSale",
+      "CancelledListing",
+      "CancelledAuction",
+      "AuctionClosed",
+    ])
+    .optional(),
+});
 
 nftsRouter.post("/tx", async (req, res) => {
   const tx = transactionSchema.safeParse(req.body);
@@ -164,9 +163,9 @@ nftsRouter.post("/tx", async (req, res) => {
     const data = await prisma.nftEvents.create({
       data: {
         transaction_hash: txHash,
-        event_type: eventType ? eventType : "Unknown"
-      }
-    })
+        event_type: eventType ? eventType : "Unknown",
+      },
+    });
 
     return res.status(200).json(data);
   } catch (error) {
@@ -185,8 +184,8 @@ nftsRouter.get("/activities", async (req, res) => {
   try {
     const events = await prisma.nftEvents.findMany({
       where: {
-        address: nft.data.contractAddress
-      }
+        address: nft.data.contractAddress,
+      },
     });
 
     return res.status(200).json(events);
@@ -198,11 +197,10 @@ nftsRouter.get("/activities", async (req, res) => {
   // const marketplace = await sdk.getContract(NFT_MARKETPLACE);
   // const contract = await sdk.getContract(nft.data.contractAddress);
 
-  
   // const data = await marketplace.events.getEvents("NewListing");
-  
+
   // return res.status(200).json(data);
-})
+});
 
 nftsRouter.get("/getTransaction", async (req, res) => {
   const tx = transactionSchema.safeParse(req.query);
@@ -210,19 +208,19 @@ nftsRouter.get("/getTransaction", async (req, res) => {
   if (!tx.success) {
     return res.status(400).json(JSON.parse(tx.error.message));
   }
-  const CHAIN_ID = parseInt(process.env.CHAIN_ID.toString());
+  const CHAIN_ID = process.env.CHAIN_ID;
   const provider = new ethers.providers.InfuraProvider(CHAIN_ID, process.env.INFURA_API_PUBLIC_KEY);
 
   try {
     const txResult = await provider.getTransaction(tx.data.transactionHash);
 
-    if(!txResult.blockNumber) {
+    if (!txResult.blockNumber) {
       return res.status(404).json({ error: "Transaction not found" });
     }
 
     const block = await provider.getBlock(txResult.blockNumber);
 
-    if(!block) {
+    if (!block) {
       return res.status(404).json({ error: "Block not found" });
     }
 
@@ -233,4 +231,4 @@ nftsRouter.get("/getTransaction", async (req, res) => {
     // @ts-ignore
     return res.status(500).json({ error: "Internal server error", message: error.message });
   }
-})
+});
