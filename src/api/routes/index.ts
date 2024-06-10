@@ -13,3 +13,4 @@ export * from "./nfts";
 export * from "./storage";
 export * from "./contracts";
 export * from "./search";
+export * from "./admin";

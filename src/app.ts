@@ -30,6 +30,7 @@ app.use("/nfts", router.nftsRouter);
 app.use("/storage", router.storage);
 app.use("/contracts", router.contracts);
 app.use("/search", router.search);
+app.use("/admin", router.admin);
 
 // Middlewares
 //app.use(middleware.notFound);
