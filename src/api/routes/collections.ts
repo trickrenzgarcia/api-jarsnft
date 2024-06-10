@@ -5,13 +5,63 @@ import { PrismaClient } from "@prisma/client";
 import { prisma } from "@/prisma";
 import { z } from "zod";
 import { ethers } from "ethers";
+import sdk from "@/thirdweb";
+import { NFT_MARKETPLACE } from "@/lib/constant";
+import { weiToEth } from "@/lib/utils";
 
 export const collections = Router();
 
-collections.get("/", async (req, res) => {
+collections.get("/popular", async (req, res) => {
   try {
-    const collections = await prisma.nftCollections.findMany({ take: 10 });
-    return res.status(200).json(collections);
+    const marketPlace = await sdk.getContract(NFT_MARKETPLACE, "marketplace-v3");
+    const res1 = marketPlace.events.getEvents("NewSale");
+    
+    // Fetch collections with their view counts
+    const res2 = prisma.nftCollections.findMany({
+      take: 100,
+    });
+
+    const [sales, collections] = await Promise.all([res1, res2]);
+
+    // Fetch view counts from nftViews
+    const views = await prisma.nftViews.groupBy({
+      by: ['contract'],
+      _sum: {
+        view_count: true
+      },
+      where: {
+        contract: {
+          in: collections.map((collection) => collection.contract)
+        }
+      }
+    });
+
+    // Create a map for quick lookup of nftViews view counts
+    const viewsMap = new Map();
+    views.forEach(view => {
+      viewsMap.set(view.contract, view._sum.view_count || 0);
+    });
+
+    // Create a map for cumulative totalPricePaid
+    const salesMap = new Map();
+    sales.forEach(sale => {
+      const contract = sale.data.assetContract;
+      const totalPricePaid = parseFloat(weiToEth(sale.data.totalPricePaid));
+      if (!salesMap.has(contract)) {
+        salesMap.set(contract, 0);
+      }
+      salesMap.set(contract, salesMap.get(contract) + totalPricePaid);
+    });
+
+    // Combine the view counts, sales, and sort by combined popularity metric
+    const combinedCollections = collections.map(collection => {
+      const nftViewsCount = viewsMap.get(collection.contract) || 0;
+      const totalSales = salesMap.get(collection.contract) || 0;
+      const combinedPopularityMetric = collection.view_count + nftViewsCount + totalSales;
+      return { ...collection, combinedPopularityMetric };
+    }).sort((a, b) => b.combinedPopularityMetric - a.combinedPopularityMetric);
+
+    return res.status(200).json(combinedCollections.slice(0, 100));
   } catch (error) {
     return res.status(400).json({ message: "Error fetching Collections" });
   }
@@ -80,3 +130,5 @@ collections.get("/trending", async (req: Request<any, any, any, TrendingParams>,
     return res.status(400).json({ message: "Error fetching trending collections" });
   }
 });
+
+
