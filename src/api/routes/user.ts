@@ -47,6 +47,24 @@ userRouter.get("/getUser", async (req, res) => {
   return res.status(200).json(user);
 });
 
+userRouter.get("/isEmailExists", async (req, res) => {
+  const emailSchema = z.object({
+    email: z.string().email(),
+  }).safeParse(req.query);
+
+  if (!emailSchema.success) {
+    return res.status(400).json(emailSchema.error.errors);
+  }
+
+  const email = await prisma.users.findFirst({
+    where: {
+      email: emailSchema.data.email,
+    },
+  });
+
+  return res.status(200).json(email ? true : false);
+});
+
 const userProfileSchema = z.object({
   address: z.string().refine((value) => ethers.utils.isAddress(value), {
     message: "Invalid address",
